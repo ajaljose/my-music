@@ -3,11 +3,13 @@ package com.example.musicplayer.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -16,6 +18,7 @@ import com.example.musicplayer.ui.navigation.BottomNavBar
 import com.example.musicplayer.ui.navigation.NavGraph
 import com.example.musicplayer.ui.navigation.Screen
 import com.example.musicplayer.ui.nowplaying.NowPlayingScreen
+import com.example.musicplayer.ui.theme.BackgroundDark
 import com.example.musicplayer.ui.theme.HarmoniaTheme
 
 @Composable
@@ -33,7 +36,7 @@ fun MainScreen(
     val darkTheme = when (themeMode) {
         "DARK" -> true
         "LIGHT" -> false
-        else -> isSystemInDarkTheme()
+        else -> true // Default to signature dark theme matching screenshot
     }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -41,11 +44,9 @@ fun MainScreen(
 
     val isTopLevelDestination = currentRoute in listOf(
         Screen.Home.route,
-        Screen.Songs.route,
-        Screen.Albums.route,
-        Screen.Artists.route,
-        Screen.Playlists.route,
-        Screen.Folders.route
+        Screen.Search.route,
+        Screen.Library.route,
+        Screen.Favourites.route
     )
 
     HarmoniaTheme(
@@ -53,8 +54,9 @@ fun MainScreen(
         dynamicColor = dynamicColor
     ) {
         Scaffold(
+            containerColor = BackgroundDark,
             bottomBar = {
-                Column {
+                Column(modifier = Modifier.background(BackgroundDark)) {
                     if (playbackState.currentSong != null && !isNowPlayingExpanded) {
                         MiniPlayer(
                             playbackState = playbackState,

@@ -1,11 +1,14 @@
 package com.example.musicplayer.ui.home
 
 import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -14,17 +17,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.PlaybackState
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.components.*
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.AccentPink
+import com.example.musicplayer.ui.theme.BackgroundDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -47,76 +55,66 @@ fun HomeScreen(
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var songForPlaylist by remember { mutableStateOf<Song?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "My Music",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Rounded.Settings,
-                            contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundDark)
+    ) {
+        // Top Curved Dome Hero Header matching signature style
+        CurvedHeader(
+            title = "My Music",
+            subtitle = if (uiState.recentlyAdded.isNotEmpty()) "${uiState.recentlyAdded.size} songs available" else "Offline Music Player",
+            headerHeight = 140.dp,
+            actions = {
+                IconButton(onClick = onNavigateToSettings) {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = "Settings",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        )
+
         if (!uiState.hasPermission) {
             EmptyState(
                 title = "Access Required",
                 message = "My Music needs storage permission to read and play audio files from your device.",
                 icon = Icons.Rounded.FolderOpen,
                 actionButtonText = "Grant Permission",
-                onActionClick = onGrantPermissionClick,
-                modifier = Modifier.padding(paddingValues)
+                onActionClick = onGrantPermissionClick
             )
         } else if (uiState.isScanning && uiState.recentlyAdded.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = AccentGold)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Scanning music library...",
-                        style = MaterialTheme.typography.titleMedium
+                        fontSize = 15.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
         } else if (uiState.recentlyAdded.isEmpty() && uiState.recentlyPlayed.isEmpty()) {
             EmptyState(
                 title = "No Music Found",
-                message = "No supported audio files found on your device. Add MP3/audio files to your device storage and rescan.",
+                message = "No supported audio files found on your device. Add MP3/audio files to your storage and tap rescan.",
                 icon = Icons.Rounded.MusicOff,
                 actionButtonText = "Rescan Music",
-                onActionClick = { viewModel.rescanMusic() },
-                modifier = Modifier.padding(paddingValues)
+                onActionClick = { viewModel.rescanMusic() }
             )
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 90.dp)
             ) {
-                // Quick Navigation Grid
+                // Quick Navigation Category Row
                 item {
                     QuickNavSection(
                         onNavigateToSongs = onNavigateToSongs,
@@ -130,6 +128,7 @@ fun HomeScreen(
                 // Recently Played Section
                 if (uiState.recentlyPlayed.isNotEmpty()) {
                     item {
+                        Spacer(modifier = Modifier.height(8.dp))
                         SectionHeader(title = "Recently Played")
                     }
                     item {
@@ -151,7 +150,7 @@ fun HomeScreen(
                 // Featured Albums
                 if (uiState.featuredAlbums.isNotEmpty()) {
                     item {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         SectionHeader(
                             title = "Albums",
                             actionText = "See all",
@@ -175,7 +174,7 @@ fun HomeScreen(
                     }
                 }
 
-                // Most Played / Frequently Played
+                // Frequently Played Songs
                 if (uiState.mostPlayed.isNotEmpty()) {
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
@@ -216,7 +215,7 @@ fun HomeScreen(
         }
     }
 
-    // Dialogs & Sheets
+    // Dialogs & Bottom Sheets
     selectedSongForOptions?.let { song ->
         SongOptionsBottomSheet(
             song = song,
@@ -272,14 +271,14 @@ private fun QuickNavSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        QuickNavChip(icon = Icons.Rounded.MusicNote, label = "Songs", onClick = onNavigateToSongs, modifier = Modifier.weight(1f))
-        QuickNavChip(icon = Icons.Rounded.Album, label = "Albums", onClick = onNavigateToAlbums, modifier = Modifier.weight(1f))
-        QuickNavChip(icon = Icons.Rounded.Person, label = "Artists", onClick = onNavigateToArtists, modifier = Modifier.weight(1f))
-        QuickNavChip(icon = Icons.Rounded.QueueMusic, label = "Playlists", onClick = onNavigateToPlaylists, modifier = Modifier.weight(1f))
-        QuickNavChip(icon = Icons.Rounded.Folder, label = "Folders", onClick = onNavigateToFolders, modifier = Modifier.weight(1f))
+        QuickNavChip(icon = Icons.Rounded.MusicNote, label = "Songs", tint = AccentCyan, onClick = onNavigateToSongs, modifier = Modifier.weight(1f))
+        QuickNavChip(icon = Icons.Rounded.Album, label = "Albums", tint = AccentGold, onClick = onNavigateToAlbums, modifier = Modifier.weight(1f))
+        QuickNavChip(icon = Icons.Rounded.Person, label = "Artists", tint = AccentCyan, onClick = onNavigateToArtists, modifier = Modifier.weight(1f))
+        QuickNavChip(icon = Icons.Rounded.QueueMusic, label = "Playlists", tint = AccentGold, onClick = onNavigateToPlaylists, modifier = Modifier.weight(1f))
+        QuickNavChip(icon = Icons.Rounded.Folder, label = "Folders", tint = AccentCyan, onClick = onNavigateToFolders, modifier = Modifier.weight(1f))
     }
 }
 
@@ -287,31 +286,42 @@ private fun QuickNavSection(
 private fun QuickNavChip(
     icon: ImageVector,
     label: String,
+    tint: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-        shape = RoundedCornerShape(12.dp)
+        color = Color(0xFF202228),
+        shape = RoundedCornerShape(14.dp)
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 4.dp),
+            modifier = Modifier.padding(vertical = 10.dp, horizontal = 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+            Surface(
+                modifier = Modifier.size(34.dp),
+                shape = CircleShape,
+                color = Color(0xFF2B313C)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = tint,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Medium,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
                 maxLines = 1
             )
         }
@@ -329,33 +339,56 @@ private fun RecentlyPlayedCard(
         modifier = modifier
             .width(130.dp)
             .clip(RoundedCornerShape(14.dp))
+            .border(1.dp, if (isPlaying) AccentGold else Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        color = Color(0xFF22242B),
         shape = RoundedCornerShape(14.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            ArtworkImage(
-                artworkUri = song.albumArtUri,
-                songUri = song.contentUri,
-                path = song.path,
-                size = 114.dp,
-                shape = RoundedCornerShape(10.dp),
-                contentDescription = song.title,
-                seed = song.album
-            )
+            Box {
+                ArtworkImage(
+                    artworkUri = song.albumArtUri,
+                    songUri = song.contentUri,
+                    path = song.path,
+                    size = 114.dp,
+                    shape = RoundedCornerShape(10.dp),
+                    contentDescription = song.title,
+                    seed = song.album
+                )
+                if (isPlaying) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(4.dp)
+                            .size(24.dp),
+                        shape = CircleShape,
+                        color = AccentGold
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Rounded.Equalizer,
+                                contentDescription = null,
+                                tint = Color.Black,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = song.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isPlaying) AccentGold else Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = song.artist,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp,
+                color = Color(0xFF8E929E),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

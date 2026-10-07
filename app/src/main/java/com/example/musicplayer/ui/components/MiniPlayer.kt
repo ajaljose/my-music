@@ -1,8 +1,10 @@
 package com.example.musicplayer.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -20,7 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.PlaybackState
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.AccentPink
 
 @Composable
 fun MiniPlayer(
@@ -40,35 +45,36 @@ fun MiniPlayer(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+            .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp), spotColor = Color.Black)
             .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        tonalElevation = 6.dp
+        color = Color(0xFF202227),
+        tonalElevation = 0.dp
     ) {
         Column {
-            // Tiny progress indicator line
+            // Golden progress indicator bar
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(2.5.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                color = AccentGold,
+                trackColor = Color(0xFF2C2E38)
             )
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ArtworkImage(
                     artworkUri = song.albumArtUri,
                     songUri = song.contentUri,
                     path = song.path,
-                    size = 48.dp,
+                    size = 46.dp,
                     shape = RoundedCornerShape(10.dp),
                     contentDescription = song.title,
                     seed = song.album
@@ -81,15 +87,17 @@ fun MiniPlayer(
                 ) {
                     Text(
                         text = song.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = song.artist,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 12.sp,
+                        color = Color(0xFF8E929E),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -102,22 +110,30 @@ fun MiniPlayer(
                     Icon(
                         imageVector = if (song.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (song.isFavorite) Color(0xFFFF4081) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (song.isFavorite) AccentPink else Color(0xFF8E929E),
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
-                IconButton(
-                    onClick = onPlayPauseClick,
-                    modifier = Modifier.size(40.dp)
+                // Glowing Play/Pause in MiniPlayer
+                Surface(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape),
+                    color = AccentGold,
+                    onClick = onPlayPauseClick
                 ) {
-                    Icon(
-                        imageVector = if (playbackState.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                        contentDescription = if (playbackState.isPlaying) "Pause" else "Play",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(28.dp)
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (playbackState.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                            contentDescription = if (playbackState.isPlaying) "Pause" else "Play",
+                            tint = Color.Black,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.width(4.dp))
 
                 IconButton(
                     onClick = onSkipNextClick,
@@ -126,7 +142,7 @@ fun MiniPlayer(
                     Icon(
                         imageVector = Icons.Rounded.SkipNext,
                         contentDescription = "Next track",
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = Color.White,
                         modifier = Modifier.size(22.dp)
                     )
                 }

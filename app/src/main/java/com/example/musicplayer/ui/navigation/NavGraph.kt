@@ -19,9 +19,13 @@ import com.example.musicplayer.ui.folders.FoldersScreen
 import com.example.musicplayer.ui.folders.FoldersViewModel
 import com.example.musicplayer.ui.home.HomeScreen
 import com.example.musicplayer.ui.home.HomeViewModel
+import com.example.musicplayer.ui.library.LibraryScreen
+import com.example.musicplayer.ui.library.LibraryViewModel
 import com.example.musicplayer.ui.playlists.PlaylistDetailScreen
 import com.example.musicplayer.ui.playlists.PlaylistsScreen
 import com.example.musicplayer.ui.playlists.PlaylistsViewModel
+import com.example.musicplayer.ui.search.SearchScreen
+import com.example.musicplayer.ui.search.SearchViewModel
 import com.example.musicplayer.ui.settings.SettingsScreen
 import com.example.musicplayer.ui.settings.SettingsViewModel
 import com.example.musicplayer.ui.songs.SongsScreen
@@ -39,6 +43,7 @@ fun NavGraph(
         startDestination = Screen.Home.route,
         modifier = modifier
     ) {
+        // Tab 1: Home
         composable(Screen.Home.route) {
             val viewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
@@ -57,6 +62,45 @@ fun NavGraph(
             )
         }
 
+        // Tab 2: Search
+        composable(Screen.Search.route) {
+            val viewModel: SearchViewModel = hiltViewModel()
+            SearchScreen(
+                viewModel = viewModel,
+                playbackState = playbackState,
+                onAlbumClick = { albumId -> navController.navigate(Screen.AlbumDetail.createRoute(albumId)) },
+                onArtistClick = { artistName -> navController.navigate(Screen.ArtistDetail.createRoute(artistName)) },
+                onPlaylistClick = { playlistId -> navController.navigate(Screen.PlaylistDetail.createRoute(playlistId)) }
+            )
+        }
+
+        // Tab 3: Library
+        composable(Screen.Library.route) {
+            val viewModel: LibraryViewModel = hiltViewModel()
+            LibraryScreen(
+                viewModel = viewModel,
+                onNavigateToSongs = { navController.navigate(Screen.Songs.route) },
+                onNavigateToAlbums = { navController.navigate(Screen.Albums.route) },
+                onNavigateToArtists = { navController.navigate(Screen.Artists.route) },
+                onNavigateToPlaylists = { navController.navigate(Screen.Playlists.route) },
+                onNavigateToFolders = { navController.navigate(Screen.Folders.route) },
+                onNavigateToFavorites = { navController.navigate(Screen.Favourites.route) }
+            )
+        }
+
+        // Tab 4: Favourites
+        composable(Screen.Favourites.route) {
+            val viewModel: PlaylistsViewModel = hiltViewModel()
+            PlaylistDetailScreen(
+                playlistId = -1L,
+                isFavorites = true,
+                viewModel = viewModel,
+                playbackState = playbackState,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Sub-routes
         composable(Screen.Songs.route) {
             val viewModel: SongsViewModel = hiltViewModel()
             SongsScreen(
@@ -121,7 +165,7 @@ fun NavGraph(
                     navController.navigate(Screen.PlaylistDetail.createRoute(playlistId, isFavorites = false))
                 },
                 onFavoritesClick = {
-                    navController.navigate(Screen.PlaylistDetail.createRoute(-1L, isFavorites = true))
+                    navController.navigate(Screen.Favourites.route)
                 }
             )
         }

@@ -5,19 +5,23 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.musicplayer.ui.theme.AccentGold
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -27,8 +31,8 @@ fun WavyProgressBar(
     totalDurationMs: Long,
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier,
-    activeColor: Color = Color(0xFFFFD54F),
-    inactiveColor: Color = Color(0xFF424242)
+    activeColor: Color = AccentGold,
+    inactiveColor: Color = Color(0xFF383A42)
 ) {
     val progress = if (totalDurationMs > 0) {
         (currentPositionMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f)
@@ -36,11 +40,26 @@ fun WavyProgressBar(
 
     val animatedProgress by animateFloatAsState(targetValue = progress, label = "progress")
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Start Time label (e.g. 2:33)
+        Text(
+            text = formatDuration(currentPositionMs),
+            color = Color(0xFF8E929E),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.width(42.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Scrubber Area
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(28.dp)
+                .weight(1f)
+                .height(34.dp)
                 .pointerInput(totalDurationMs) {
                     detectTapGestures { offset ->
                         val newFraction = (offset.x / size.width).coerceIn(0f, 1f)
@@ -55,28 +74,28 @@ fun WavyProgressBar(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Canvas(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
                 val width = size.width
                 val height = size.height
                 val centerY = height / 2f
                 val activeWidth = width * animatedProgress
 
-                // 1. Inactive Line (remaining track)
+                // 1. Inactive Track (straight sleek line)
                 if (activeWidth < width) {
                     drawLine(
                         color = inactiveColor,
-                        start = Offset(activeWidth, centerY),
+                        start = Offset(activeWidth.coerceAtLeast(0f), centerY),
                         end = Offset(width, centerY),
                         strokeWidth = 3.5.dp.toPx(),
                         cap = StrokeCap.Round
                     )
                 }
 
-                // 2. Wavy Active Track (played track)
+                // 2. Wavy Active Track (golden sinusoidal wave)
                 if (activeWidth > 0f) {
                     val wavyPath = Path().apply {
                         moveTo(0f, centerY)
-                        val waveLength = 20.dp.toPx()
+                        val waveLength = 22.dp.toPx()
                         val amplitude = 4.dp.toPx()
                         var x = 0f
                         while (x < activeWidth) {
@@ -97,33 +116,29 @@ fun WavyProgressBar(
                         style = Stroke(width = 3.5.dp.toPx(), cap = StrokeCap.Round)
                     )
 
-                    // 3. Thumb
-                    drawCircle(
+                    // 3. Vertical Capsule / Pill Scrubber Thumb (matching screenshot)
+                    val thumbWidth = 4.5.dp.toPx()
+                    val thumbHeight = 16.dp.toPx()
+                    drawRoundRect(
                         color = activeColor,
-                        radius = 6.5.dp.toPx(),
-                        center = Offset(activeWidth, centerY)
+                        topLeft = Offset(activeWidth - (thumbWidth / 2f), centerY - (thumbHeight / 2f)),
+                        size = Size(thumbWidth, thumbHeight),
+                        cornerRadius = CornerRadius(thumbWidth / 2f, thumbWidth / 2f)
                     )
                 }
             }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = formatDuration(currentPositionMs),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.LightGray.copy(alpha = 0.8f)
-            )
-            Text(
-                text = formatDuration(totalDurationMs),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.LightGray.copy(alpha = 0.8f)
-            )
-        }
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // End Time label (e.g. 6:00)
+        Text(
+            text = formatDuration(totalDurationMs),
+            color = Color(0xFF8E929E),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.width(42.dp)
+        )
     }
 }
 

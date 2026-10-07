@@ -1,10 +1,13 @@
 package com.example.musicplayer.ui.folders
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -13,15 +16,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.Folder
 import com.example.musicplayer.domain.model.PlaybackState
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.components.*
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.BackgroundDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoldersScreen(
     viewModel: FoldersViewModel,
@@ -36,43 +43,30 @@ fun FoldersScreen(
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var songForPlaylist by remember { mutableStateOf<Song?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = selectedFolder?.name ?: "Music Folders",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    if (selectedFolder != null) {
-                        IconButton(onClick = { viewModel.selectFolder(null) }) {
-                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Back")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(BackgroundDark)
+    ) {
+        CurvedHeader(
+            title = selectedFolder?.name ?: "Folders",
+            subtitle = if (selectedFolder != null) "${selectedFolder.songCount} tracks" else "${uiState.folders.size} directories",
+            headerHeight = 140.dp,
+            navigationIcon = if (selectedFolder != null) Icons.Rounded.ArrowBack else null,
+            onNavigationClick = { viewModel.selectFolder(null) }
+        )
+
         if (selectedFolder == null) {
             // Folder List View
             if (uiState.folders.isEmpty()) {
                 EmptyState(
                     title = "No Folders Found",
                     message = "No audio file directories found on your device.",
-                    icon = Icons.Rounded.FolderOff,
-                    modifier = Modifier.padding(paddingValues)
+                    icon = Icons.Rounded.FolderOff
                 )
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 90.dp)
                 ) {
                     items(uiState.folders, key = { it.path }) { folder ->
@@ -86,36 +80,42 @@ fun FoldersScreen(
         } else {
             // Songs inside Selected Folder
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 90.dp)
             ) {
                 item {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
                             onClick = { viewModel.playFolder(selectedFolder, shuffle = false) },
                             modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AccentGold,
+                                contentColor = Color.Black
+                            )
                         ) {
-                            Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Play All")
+                            Text("Play All", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
 
                         OutlinedButton(
                             onClick = { viewModel.playFolder(selectedFolder, shuffle = true) },
                             modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.White
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
                         ) {
-                            Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Shuffle")
+                            Text("Shuffle", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                         }
                     }
                 }
@@ -186,33 +186,42 @@ private fun FolderRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Rounded.Folder,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(36.dp)
-        )
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = Color(0xFF2C313B)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Rounded.Folder,
+                    contentDescription = null,
+                    tint = AccentCyan,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = folder.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "${folder.songCount} songs • ${folder.path}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = "${folder.songCount} tracks • ${folder.path}",
+                fontSize = 12.sp,
+                color = Color(0xFF8E929E),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -221,7 +230,8 @@ private fun FolderRow(
         Icon(
             imageVector = Icons.Rounded.ChevronRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = Color(0xFF8E929E).copy(alpha = 0.6f),
+            modifier = Modifier.size(20.dp)
         )
     }
 }

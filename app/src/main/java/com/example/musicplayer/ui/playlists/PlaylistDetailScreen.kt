@@ -1,9 +1,11 @@
 package com.example.musicplayer.ui.playlists
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -11,15 +13,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.PlaybackState
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.components.*
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.AccentPink
+import com.example.musicplayer.ui.theme.BackgroundDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistDetailScreen(
     playlistId: Long,
@@ -37,7 +43,7 @@ fun PlaylistDetailScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    val playlistName = if (isFavorites) "Favorites" else (uiState.selectedPlaylist?.name ?: "Playlist")
+    val playlistName = if (isFavorites) "Favourites" else (uiState.selectedPlaylist?.name ?: "Playlist")
     val songs = uiState.playlistSongs
 
     var selectedSongForOptions by remember { mutableStateOf<Song?>(null) }
@@ -45,78 +51,86 @@ fun PlaylistDetailScreen(
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var songForPlaylist by remember { mutableStateOf<Song?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(playlistName) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Back")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundDark)
+    ) {
+        // Curved Dome Header with Overlapping Badge
+        CurvedHeader(
+            title = "",
+            navigationIcon = Icons.Rounded.ArrowBack,
+            onNavigationClick = onBackClick,
+            headerHeight = 200.dp,
+            bottomContent = {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 30.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val headerIcon = if (isFavorites) Icons.Rounded.Favorite else Icons.Rounded.QueueMusic
+                    val headerTint = if (isFavorites) AccentPink else AccentGold
+
+                    Surface(
+                        modifier = Modifier
+                            .size(130.dp)
+                            .shadow(20.dp, RoundedCornerShape(26.dp))
+                            .border(2.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(26.dp)),
+                        shape = RoundedCornerShape(26.dp),
+                        color = Color(0xFF2C313B)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = headerIcon,
+                                contentDescription = null,
+                                tint = headerTint,
+                                modifier = Modifier.size(64.dp)
+                            )
+                        }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        }
-    ) { paddingValues ->
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(36.dp))
+
         if (songs.isEmpty()) {
             EmptyState(
                 title = "Playlist is Empty",
-                message = if (isFavorites) "You haven't added any favorite songs yet." else "Add songs to this playlist from the song menu.",
-                icon = if (isFavorites) Icons.Rounded.FavoriteBorder else Icons.Rounded.QueueMusic,
-                modifier = Modifier.padding(paddingValues)
+                message = if (isFavorites) "You haven't added any favorite songs yet." else "Add songs to this playlist from the song options menu.",
+                icon = if (isFavorites) Icons.Rounded.FavoriteBorder else Icons.Rounded.QueueMusic
             )
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 90.dp)
             ) {
-                // Header banner
                 item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        val headerIcon = if (isFavorites) Icons.Rounded.Favorite else Icons.Rounded.QueueMusic
-                        val headerColor = if (isFavorites) Color(0xFFFF4081) else MaterialTheme.colorScheme.primary
-
-                        Box(
-                            modifier = Modifier
-                                .size(110.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(headerColor.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = headerIcon,
-                                contentDescription = null,
-                                tint = headerColor,
-                                modifier = Modifier.size(54.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         Text(
                             text = playlistName,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
                             text = "${songs.size} tracks",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontSize = 14.sp,
+                            color = Color(0xFF8E929E)
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -125,24 +139,34 @@ fun PlaylistDetailScreen(
                             Button(
                                 onClick = { viewModel.playAll(songs, shuffle = false) },
                                 modifier = Modifier.weight(1f),
-                                shape = MaterialTheme.shapes.medium
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = AccentGold,
+                                    contentColor = Color.Black
+                                )
                             ) {
-                                Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null)
+                                Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Play")
+                                Text("Play", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                             }
 
                             OutlinedButton(
                                 onClick = { viewModel.playAll(songs, shuffle = true) },
                                 modifier = Modifier.weight(1f),
-                                shape = MaterialTheme.shapes.medium
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = Color.White
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
                             ) {
-                                Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null)
+                                Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Shuffle")
+                                Text("Shuffle", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
                 itemsIndexed(songs, key = { _, s -> s.id }) { index, song ->

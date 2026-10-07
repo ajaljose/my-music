@@ -8,28 +8,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryDark,
-    secondary = SecondaryDark,
-    tertiary = AccentPink,
+    primary = AccentGold,
+    onPrimary = Color.Black,
+    primaryContainer = AccentGold.copy(alpha = 0.2f),
+    onPrimaryContainer = AccentGold,
+    secondary = AccentTeal,
+    onSecondary = Color.White,
+    secondaryContainer = AccentTeal.copy(alpha = 0.2f),
+    onSecondaryContainer = Color.White,
+    tertiary = AccentCyan,
     background = BackgroundDark,
     surface = SurfaceDark,
     surfaceVariant = SurfaceVariantDark,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
+    surfaceContainer = CardBackgroundDark,
     onBackground = OnSurfaceDark,
     onSurface = OnSurfaceDark,
     onSurfaceVariant = OnSurfaceVariantDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryLight,
-    secondary = SecondaryLight,
-    tertiary = AccentPink,
+    primary = AccentTeal,
+    onPrimary = Color.White,
+    secondary = AccentGold,
+    onSecondary = Color.Black,
+    tertiary = AccentCyan,
     background = BackgroundLight,
     surface = SurfaceLight,
     surfaceVariant = SurfaceVariantLight,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
     onBackground = OnSurfaceLight,
     onSurface = OnSurfaceLight,
     onSurfaceVariant = OnSurfaceVariantLight
@@ -37,8 +42,8 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun HarmoniaTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true, // Default to stunning dark theme matching the screenshot
+    dynamicColor: Boolean = false, // Keep consistent rich theme colors
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

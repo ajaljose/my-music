@@ -1,6 +1,8 @@
 package com.example.musicplayer.ui.albums
 
 import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -13,13 +15,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.PlaybackState
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.components.*
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.BackgroundDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumDetailScreen(
     albumId: Long,
@@ -40,60 +47,70 @@ fun AlbumDetailScreen(
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var songForPlaylist by remember { mutableStateOf<Song?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(album?.name ?: "Album Details") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundDark)
+    ) {
+        // Curved Dome Header with Overlapping Artwork (matching Now Playing)
+        CurvedHeader(
+            title = "",
+            navigationIcon = Icons.Rounded.ArrowBack,
+            onNavigationClick = onBackClick,
+            headerHeight = 220.dp,
+            bottomContent = {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 30.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ArtworkImage(
+                        artworkUri = album?.albumArtUriString?.let { Uri.parse(it) },
+                        size = 170.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        seed = album?.name ?: "",
+                        contentDescription = album?.name,
+                        modifier = Modifier
+                            .size(170.dp)
+                            .shadow(20.dp, RoundedCornerShape(20.dp))
+                            .border(1.5.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+                    )
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 90.dp)
         ) {
-            // Album Header
             item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                        .padding(horizontal = 24.dp, vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    ArtworkImage(
-                        artworkUri = album?.albumArtUriString?.let { Uri.parse(it) },
-                        size = 180.dp,
-                        shape = RoundedCornerShape(16.dp),
-                        seed = album?.name ?: "",
-                        contentDescription = album?.name
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Text(
                         text = album?.name ?: "Unknown Album",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = "${album?.artist ?: "Unknown Artist"} • ${songs.size} tracks",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontSize = 14.sp,
+                        color = Color(0xFF8E929E)
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -102,24 +119,34 @@ fun AlbumDetailScreen(
                         Button(
                             onClick = { viewModel.playAlbum(songs, shuffle = false) },
                             modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AccentGold,
+                                contentColor = Color.Black
+                            )
                         ) {
-                            Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Play")
+                            Text("Play", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
 
                         OutlinedButton(
                             onClick = { viewModel.playAlbum(songs, shuffle = true) },
                             modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.White
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
                         ) {
-                            Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Shuffle")
+                            Text("Shuffle", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             itemsIndexed(songs, key = { _, s -> s.id }) { index, song ->

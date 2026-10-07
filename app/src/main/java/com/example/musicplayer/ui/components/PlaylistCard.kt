@@ -17,7 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.Playlist
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.AccentPink
 
 @Composable
 fun PlaylistCard(
@@ -31,26 +35,26 @@ fun PlaylistCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val isFavorites = playlist.name.equals("Favorites", ignoreCase = true)
         val icon = if (isFavorites) Icons.Rounded.Favorite else Icons.Rounded.QueueMusic
-        val iconTint = if (isFavorites) Color(0xFFFF4081) else MaterialTheme.colorScheme.primary
+        val iconTint = if (isFavorites) AccentPink else AccentGold
 
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(iconTint.copy(alpha = 0.15f)),
-            contentAlignment = Alignment.Center
+        Surface(
+            modifier = Modifier.size(50.dp),
+            shape = RoundedCornerShape(14.dp),
+            color = Color(0xFF2C313B)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(26.dp)
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -60,8 +64,9 @@ fun PlaylistCard(
         ) {
             Text(
                 text = playlist.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -69,9 +74,9 @@ fun PlaylistCard(
             Spacer(modifier = Modifier.height(2.dp))
 
             Text(
-                text = "${playlist.songCount} songs",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = "${playlist.songCount} tracks",
+                fontSize = 13.sp,
+                color = Color(0xFF8E929E),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -85,7 +90,7 @@ fun PlaylistCard(
                 Icon(
                     imageVector = Icons.Rounded.MoreVert,
                     contentDescription = "Playlist options",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = Color(0xFF8E929E),
                     modifier = Modifier.size(20.dp)
                 )
             }

@@ -1,21 +1,26 @@
 package com.example.musicplayer.ui.songs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.PlaybackState
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.components.*
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.BackgroundDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsScreen(
     viewModel: SongsViewModel,
@@ -30,73 +35,59 @@ fun SongsScreen(
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var songForPlaylist by remember { mutableStateOf<Song?>(null) }
 
-    Scaffold(
-        topBar = {
-            if (uiState.isSearching) {
-                SearchTopBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = { viewModel.onSearchQueryChange(it) },
-                    onCloseSearch = { viewModel.toggleSearching(false) },
-                    placeholderText = "Search in songs..."
-                )
-            } else {
-                TopAppBar(
-                    title = {
-                        Column {
-                            Text(
-                                text = "All Songs",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "${uiState.songs.size} tracks",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { viewModel.toggleSearching(true) }) {
-                            Icon(
-                                imageVector = Icons.Rounded.Search,
-                                contentDescription = "Search"
-                            )
-                        }
-                        IconButton(onClick = { showSortSheet = true }) {
-                            Icon(
-                                imageVector = Icons.Rounded.Sort,
-                                contentDescription = "Sort"
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    )
-                )
-            }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(BackgroundDark)
+    ) {
+        if (uiState.isSearching) {
+            SearchTopBar(
+                query = uiState.searchQuery,
+                onQueryChange = { viewModel.onSearchQueryChange(it) },
+                onCloseSearch = { viewModel.toggleSearching(false) },
+                placeholderText = "Search in songs..."
+            )
+        } else {
+            CurvedHeader(
+                title = "All Songs",
+                subtitle = "${uiState.songs.size} tracks available",
+                headerHeight = 140.dp,
+                actions = {
+                    IconButton(onClick = { viewModel.toggleSearching(true) }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = "Search",
+                            tint = Color.White
+                        )
+                    }
+                    IconButton(onClick = { showSortSheet = true }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Sort,
+                            contentDescription = "Sort",
+                            tint = Color.White
+                        )
+                    }
+                }
+            )
         }
-    ) { paddingValues ->
+
         if (uiState.songs.isEmpty()) {
             if (uiState.searchQuery.isNotBlank()) {
                 EmptyState(
                     title = "No results found",
                     message = "No songs match '${uiState.searchQuery}'. Try another query.",
-                    icon = Icons.Rounded.SearchOff,
-                    modifier = Modifier.padding(paddingValues)
+                    icon = Icons.Rounded.SearchOff
                 )
             } else {
                 EmptyState(
                     title = "No Songs Found",
                     message = "Your audio library is empty.",
-                    icon = Icons.Rounded.MusicOff,
-                    modifier = Modifier.padding(paddingValues)
+                    icon = Icons.Rounded.MusicOff
                 )
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 90.dp)
             ) {
                 // Header with Play All & Shuffle Buttons
@@ -104,27 +95,35 @@ fun SongsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
                             onClick = { viewModel.playAll(shuffle = false) },
                             modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AccentGold,
+                                contentColor = Color.Black
+                            )
                         ) {
-                            Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Play All")
+                            Text("Play All", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
 
                         OutlinedButton(
                             onClick = { viewModel.playAll(shuffle = true) },
                             modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color.White
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
                         ) {
-                            Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null)
+                            Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Shuffle")
+                            Text("Shuffle", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                         }
                     }
                 }

@@ -5,7 +5,13 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector? = null) {
+    // 4 Main Bottom Bar destinations matching screenshot
     object Home : Screen("home", "Home", Icons.Rounded.Home)
+    object Search : Screen("search", "Search", Icons.Rounded.Search)
+    object Library : Screen("library", "Library", Icons.Rounded.CollectionsBookmark)
+    object Favourites : Screen("favourites", "Favourites", Icons.Rounded.FavoriteBorder)
+
+    // Detailed Sub-Screens & Category Views
     object Songs : Screen("songs", "Songs", Icons.Rounded.MusicNote)
     object Albums : Screen("albums", "Albums", Icons.Rounded.Album)
     object Artists : Screen("artists", "Artists", Icons.Rounded.Person)

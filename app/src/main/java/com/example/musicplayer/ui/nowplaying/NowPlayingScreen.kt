@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.RepeatMode
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.playback.manager.MusicPlaybackManager
@@ -36,6 +37,10 @@ import com.example.musicplayer.ui.components.ArtworkImage
 import com.example.musicplayer.ui.components.SleepTimerDialog
 import com.example.musicplayer.ui.components.SongOptionsBottomSheet
 import com.example.musicplayer.ui.components.WavyProgressBar
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.AccentPink
+import com.example.musicplayer.ui.theme.BackgroundDark
 
 @Composable
 fun NowPlayingScreen(
@@ -53,7 +58,7 @@ fun NowPlayingScreen(
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showOptionsSheet by remember { mutableStateOf(false) }
 
-    var prominentColorTarget by remember { mutableStateOf(Color(0xFF008B9B)) }
+    var prominentColorTarget by remember { mutableStateOf(Color(0xFF008B9E)) }
     val animatedProminentColor by animateColorAsState(
         targetValue = prominentColorTarget,
         animationSpec = tween(durationMillis = 600),
@@ -68,7 +73,7 @@ fun NowPlayingScreen(
                 songUri = currentSong.contentUri,
                 path = currentSong.path
             )
-            prominentColorTarget = color
+            prominentColorTarget = if (color != Color(0xFF1E1E24)) color else Color(0xFF008B9E)
         }
     }
 
@@ -77,7 +82,7 @@ fun NowPlayingScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF1B1B1D))
+            .background(BackgroundDark)
     ) {
         if (currentSong == null) {
             Box(
@@ -96,11 +101,11 @@ fun NowPlayingScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                // Top Curved / Dome Background with Prominent Color
+                // Top Curved / Dome Background with Teal / Prominent Extracted Color
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(340.dp)
+                        .height(350.dp)
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         val w = size.width
@@ -123,7 +128,7 @@ fun NowPlayingScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .statusBarsPadding()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -138,24 +143,26 @@ fun NowPlayingScreen(
 
                         Text(
                             text = "Now Playing",
-                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
 
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { showSleepTimerDialog = true }) {
                                 Icon(
                                     imageVector = Icons.Rounded.Timer,
                                     contentDescription = "Sleep Timer",
-                                    tint = if (sleepTimerState.isActive) Color(0xFFFFD54F) else Color.White
+                                    tint = if (sleepTimerState.isActive) AccentGold else Color.White.copy(alpha = 0.85f),
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                             IconButton(onClick = { showQueueSheet = true }) {
                                 Icon(
                                     imageVector = Icons.Rounded.QueueMusic,
                                     contentDescription = "Queue",
-                                    tint = Color.White
+                                    tint = Color.White,
+                                    modifier = Modifier.size(26.dp)
                                 )
                             }
                         }
@@ -165,7 +172,7 @@ fun NowPlayingScreen(
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = 6.dp)
                             .pointerInput(Unit) {
                                 detectHorizontalDragGestures(
                                     onDragEnd = {
@@ -188,23 +195,25 @@ fun NowPlayingScreen(
                             artworkUri = currentSong.albumArtUri,
                             songUri = currentSong.contentUri,
                             path = currentSong.path,
-                            size = 250.dp,
+                            size = 260.dp,
                             shape = RoundedCornerShape(22.dp),
                             contentDescription = currentSong.title,
                             seed = currentSong.album,
                             modifier = Modifier
-                                .size(250.dp)
-                                .shadow(24.dp, RoundedCornerShape(22.dp))
-                                .border(1.5.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(22.dp))
+                                .size(260.dp)
+                                .shadow(28.dp, RoundedCornerShape(22.dp), ambientColor = Color.Black.copy(alpha = 0.6f), spotColor = Color.Black)
+                                .border(1.5.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(22.dp))
                         )
                     }
                 }
 
-                // Song Title, Artist & Options Row
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Song Title, Artist, Favorite & 3-Dots Options Row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                        .padding(horizontal = 20.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -215,7 +224,7 @@ fun NowPlayingScreen(
                         Icon(
                             imageVector = if (currentSong.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favorite",
-                            tint = if (currentSong.isFavorite) Color(0xFFFF4081) else Color.Gray,
+                            tint = if (currentSong.isFavorite) AccentPink else Color(0xFF8E929E),
                             modifier = Modifier.size(26.dp)
                         )
                     }
@@ -223,11 +232,11 @@ fun NowPlayingScreen(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(horizontal = 12.dp)
+                            .padding(horizontal = 10.dp)
                     ) {
                         Text(
                             text = currentSong.title,
-                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             maxLines = 1,
@@ -235,9 +244,9 @@ fun NowPlayingScreen(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "${currentSong.artist} • ${currentSong.album}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
+                            text = if (currentSong.album.isNotBlank()) "${currentSong.artist} - ${currentSong.album}" else currentSong.artist,
+                            fontSize = 14.sp,
+                            color = Color(0xFF8E929E),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -248,29 +257,33 @@ fun NowPlayingScreen(
                         modifier = Modifier.size(44.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.MoreVert,
+                            imageVector = Icons.Rounded.MoreHoriz,
                             contentDescription = "Options",
-                            tint = Color.Gray,
+                            tint = Color(0xFF8E929E),
                             modifier = Modifier.size(26.dp)
                         )
                     }
                 }
 
-                // Wavy Progress Bar
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Squiggly Wavy Progress Bar with Timestamps
                 WavyProgressBar(
                     currentPositionMs = playbackState.currentPosition,
                     totalDurationMs = playbackState.totalDuration,
                     onSeek = { playbackManager.seekTo(it) },
-                    activeColor = Color(0xFFFFD54F),
-                    inactiveColor = Color(0xFF3E3E42),
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                    activeColor = AccentGold,
+                    inactiveColor = Color(0xFF383A42),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
                 )
 
-                // Playback Controls Row
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Playback Controls Row (Matching Screenshot)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -282,30 +295,31 @@ fun NowPlayingScreen(
                         Icon(
                             imageVector = Icons.Rounded.Shuffle,
                             contentDescription = "Shuffle",
-                            tint = if (playbackState.isShuffleEnabled) Color(0xFFFFD54F) else Color.Gray
+                            tint = if (playbackState.isShuffleEnabled) AccentGold else Color(0xFF8E929E),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
 
                     // Skip Previous
                     IconButton(
                         onClick = { playbackManager.skipToPrevious() },
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(50.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.SkipPrevious,
                             contentDescription = "Previous",
                             tint = Color.White,
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(36.dp)
                         )
                     }
 
-                    // Play/Pause Center Button (Vibrant Yellow/Gold)
+                    // Play/Pause Center Glowing Gold Button
                     Surface(
                         modifier = Modifier
-                            .size(68.dp)
-                            .clip(CircleShape)
-                            .shadow(12.dp, CircleShape, ambientColor = Color(0xFFFFD54F), spotColor = Color(0xFFFFD54F)),
-                        color = Color(0xFFFFD54F),
+                            .size(70.dp)
+                            .shadow(16.dp, CircleShape, ambientColor = AccentGold, spotColor = AccentGold)
+                            .clip(CircleShape),
+                        color = AccentGold,
                         onClick = { playbackManager.playPause() }
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -320,7 +334,7 @@ fun NowPlayingScreen(
                                     imageVector = if (playbackState.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
                                     contentDescription = if (playbackState.isPlaying) "Pause" else "Play",
                                     tint = Color.Black,
-                                    modifier = Modifier.size(38.dp)
+                                    modifier = Modifier.size(40.dp)
                                 )
                             }
                         }
@@ -329,13 +343,13 @@ fun NowPlayingScreen(
                     // Skip Next
                     IconButton(
                         onClick = { playbackManager.skipToNext() },
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(50.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.SkipNext,
                             contentDescription = "Next",
                             tint = Color.White,
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(36.dp)
                         )
                     }
 
@@ -348,26 +362,27 @@ fun NowPlayingScreen(
                             RepeatMode.ONE -> Icons.Rounded.RepeatOne
                             else -> Icons.Rounded.Repeat
                         }
-                        val tint = if (playbackState.repeatMode != RepeatMode.OFF) Color(0xFFFFD54F) else Color.Gray
+                        val tint = if (playbackState.repeatMode != RepeatMode.OFF) AccentGold else Color(0xFF8E929E)
                         Icon(
                             imageVector = icon,
                             contentDescription = "Repeat",
-                            tint = tint
+                            tint = tint,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Track Information Card (Matching screenshot)
+                // Track Information Card (Matching Screenshot exactly)
                 TrackInformationCard(
                     song = currentSong,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .padding(horizontal = 18.dp, vertical = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(36.dp))
             }
         }
     }
@@ -424,8 +439,9 @@ private fun TrackInformationCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color(0xFF232427),
-        shape = RoundedCornerShape(20.dp)
+        color = Color(0xFF22242B),
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
     ) {
         Column(
             modifier = Modifier
@@ -438,21 +454,21 @@ private fun TrackInformationCard(
                 Icon(
                     imageVector = Icons.Rounded.Info,
                     contentDescription = null,
-                    tint = Color(0xFFFFD54F),
+                    tint = AccentGold,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Track Information",
-                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             }
 
             Spacer(modifier = Modifier.height(14.dp))
-            HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
-            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = Color.White.copy(alpha = 0.08f), thickness = 0.8.dp)
+            Spacer(modifier = Modifier.height(16.dp))
 
             // TITLE
             TrackInfoRow(
@@ -461,7 +477,7 @@ private fun TrackInformationCard(
                 value = song.title
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // AUTHORS / ARTISTS
             TrackInfoRow(
@@ -470,13 +486,13 @@ private fun TrackInformationCard(
                 value = song.artist
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // ALBUM
             TrackInfoRow(
                 icon = Icons.Rounded.Album,
                 label = "ALBUM",
-                value = song.album
+                value = song.album.ifBlank { "Unknown Album" }
             )
         }
     }
@@ -493,16 +509,16 @@ private fun TrackInfoRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         Surface(
-            modifier = Modifier.size(36.dp),
+            modifier = Modifier.size(38.dp),
             shape = CircleShape,
-            color = Color(0xFF2C3036)
+            color = Color(0xFF2B313C)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF00B4D8),
-                    modifier = Modifier.size(18.dp)
+                    tint = AccentCyan,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -512,14 +528,15 @@ private fun TrackInfoRow(
         Column {
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 11.sp,
+                color = Color(0xFF8E929E),
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.8.sp
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = value.ifBlank { "Unknown" },
-                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 15.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,

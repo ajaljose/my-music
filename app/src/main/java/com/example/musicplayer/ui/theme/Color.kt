@@ -2,34 +2,30 @@ package com.example.musicplayer.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Dark Theme Colors
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Primary Signature Theme Colors (Matching Screenshot)
+val BackgroundDark = Color(0xFF16171B)
+val SurfaceDark = Color(0xFF202228)
+val SurfaceVariantDark = Color(0xFF282A33)
+val CardBackgroundDark = Color(0xFF23242A)
+val OnSurfaceDark = Color(0xFFFFFFFF)
+val OnSurfaceVariantDark = Color(0xFF8E929E)
 
-val PrimaryDark = Color(0xFF9D65FF)
-val PrimaryVariantDark = Color(0xFF7C4DFF)
-val SecondaryDark = Color(0xFF03DAC6)
-val BackgroundDark = Color(0xFF121216)
-val SurfaceDark = Color(0xFF1E1E24)
-val SurfaceVariantDark = Color(0xFF2B2B36)
-val OnSurfaceDark = Color(0xFFEEEEF2)
-val OnSurfaceVariantDark = Color(0xFFA0A0AB)
+// Vibrant Signature Accents
+val AccentGold = Color(0xFFF5C542)       // Active play button, active nav tabs, info icons
+val AccentGoldLight = Color(0xFFFFD54F)
+val AccentTeal = Color(0xFF008B9E)       // Signature curved dome background & highlights
+val AccentTealDark = Color(0xFF006B7A)
+val AccentCyan = Color(0xFF00BCD4)       // Circular icon badges
+val AccentPink = Color(0xFFFF4081)       // Favorite heart when active
+val BadgeBackgroundDark = Color(0xFF2C313B)
+val DividerDark = Color(0x14FFFFFF)
 
-// Light Theme Colors
-val PrimaryLight = Color(0xFF6200EE)
-val PrimaryVariantLight = Color(0xFF3700B3)
-val SecondaryLight = Color(0xFF018786)
-val BackgroundLight = Color(0xFFF8F9FE)
+// Light Theme Fallbacks
+val PrimaryLight = Color(0xFF008B9E)
+val PrimaryVariantLight = Color(0xFF006B7A)
+val SecondaryLight = Color(0xFFF5C542)
+val BackgroundLight = Color(0xFFF4F5F8)
 val SurfaceLight = Color(0xFFFFFFFF)
-val SurfaceVariantLight = Color(0xFFECEEF5)
-val OnSurfaceLight = Color(0xFF1C1B1F)
-val OnSurfaceVariantLight = Color(0xFF686873)
-
-// Custom Accent & Gradients
-val AccentCyan = Color(0xFF00E5FF)
-val AccentPink = Color(0xFFFF4081)
-val AccentAmber = Color(0xFFFFAB00)
-val GradientStart = Color(0xFF8A2387)
-val GradientMid = Color(0xFFE94057)
-val GradientEnd = Color(0xFFF27121)
+val SurfaceVariantLight = Color(0xFFE8EAF0)
+val OnSurfaceLight = Color(0xFF16171B)
+val OnSurfaceVariantLight = Color(0xFF6B7280)

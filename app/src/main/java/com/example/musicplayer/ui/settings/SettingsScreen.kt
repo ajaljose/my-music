@@ -1,9 +1,12 @@
 package com.example.musicplayer.ui.settings
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -12,12 +15,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.musicplayer.ui.components.CurvedHeader
 import com.example.musicplayer.ui.components.SleepTimerDialog
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
+import com.example.musicplayer.ui.theme.BackgroundDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
@@ -29,32 +37,23 @@ fun SettingsScreen(
     var showThemeDialog by remember { mutableStateOf(false) }
     var showSleepTimerDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Settings",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(BackgroundDark)
+    ) {
+        CurvedHeader(
+            title = "Settings",
+            subtitle = "Preferences and audio configuration",
+            navigationIcon = Icons.Rounded.ArrowBack,
+            onNavigationClick = onBackClick,
+            headerHeight = 140.dp
+        )
+
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 90.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Appearance Category
             item {
@@ -81,7 +80,7 @@ fun SettingsScreen(
                     SettingsSwitchItem(
                         icon = Icons.Rounded.ColorLens,
                         title = "Dynamic Colors (Material You)",
-                        subtitle = "Use colors derived from your device wallpaper",
+                        subtitle = "Use colors derived from wallpaper",
                         checked = uiState.dynamicColor,
                         onCheckedChange = { viewModel.setDynamicColor(it) }
                     )
@@ -90,7 +89,7 @@ fun SettingsScreen(
 
             // Playback Category
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 SettingsCategoryHeader(title = "Playback")
             }
 
@@ -99,7 +98,7 @@ fun SettingsScreen(
                     val minutesLeft = uiState.sleepTimerState.remainingMillis / 1000 / 60
                     "Active: ~$minutesLeft min remaining"
                 } else {
-                    "Off"
+                    "Set a timer to automatically pause playback"
                 }
 
                 SettingsClickableItem(
@@ -110,90 +109,57 @@ fun SettingsScreen(
                 )
             }
 
-            item {
-                SettingsSwitchItem(
-                    icon = Icons.Rounded.Headphones,
-                    title = "Pause on Disconnect",
-                    subtitle = "Automatically pause playback when headphones or Bluetooth disconnect",
-                    checked = uiState.pauseOnHeadphoneDisconnect,
-                    onCheckedChange = { viewModel.setPauseOnHeadphoneDisconnect(it) }
-                )
-            }
-
             // Library Category
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 SettingsCategoryHeader(title = "Library")
             }
 
             item {
                 SettingsClickableItem(
                     icon = Icons.Rounded.Refresh,
-                    title = "Rescan Music Library",
-                    subtitle = if (uiState.isRescanning) "Scanning files..." else "${uiState.totalSongs} audio tracks in library",
+                    title = "Rescan Library",
+                    subtitle = if (uiState.isRescanning) "Scanning media files..." else "Scan device storage for new songs and audio files",
                     onClick = { viewModel.rescanLibrary() }
                 )
             }
 
             // About Category
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 SettingsCategoryHeader(title = "About")
             }
 
             item {
-                SettingsClickableItem(
+                SettingsInfoItem(
                     icon = Icons.Rounded.Info,
-                    title = "My Music Player",
-                    subtitle = "Version 1.0.0 (Native Android with Jetpack Compose & Media3)",
-                    onClick = {}
+                    title = "App Version",
+                    value = "1.0.0"
                 )
+            }
+
+            item {
+                SettingsInfoItem(
+                    icon = Icons.Rounded.MusicNote,
+                    title = "Harmonia Music Player",
+                    value = "Designed for seamless offline audio"
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(70.dp))
             }
         }
     }
 
     if (showThemeDialog) {
-        AlertDialog(
-            onDismissRequest = { showThemeDialog = false },
-            title = { Text("Choose Theme") },
-            text = {
-                Column {
-                    listOf(
-                        "SYSTEM" to "System Default",
-                        "LIGHT" to "Light",
-                        "DARK" to "Dark"
-                    ).forEach { (mode, label) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    viewModel.setThemeMode(mode)
-                                    showThemeDialog = false
-                                }
-                                .padding(vertical = 12.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = uiState.themeMode == mode,
-                                onClick = {
-                                    viewModel.setThemeMode(mode)
-                                    showThemeDialog = false
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(text = label, style = MaterialTheme.typography.bodyLarge)
-                        }
-                    }
-                }
+        ThemeSelectionDialog(
+            currentTheme = uiState.themeMode,
+            onThemeSelected = {
+                viewModel.setThemeMode(it)
+                showThemeDialog = false
             },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showThemeDialog = false }) {
-                    Text("Cancel")
-                }
-            },
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showThemeDialog = false }
         )
     }
 
@@ -211,11 +177,12 @@ fun SettingsScreen(
 @Composable
 private fun SettingsCategoryHeader(title: String) {
     Text(
-        text = title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
+        text = title.uppercase(),
+        fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+        color = AccentGold,
+        letterSpacing = 1.sp,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)
     )
 }
 
@@ -226,33 +193,56 @@ private fun SettingsClickableItem(
     subtitle: String,
     onClick: () -> Unit
 ) {
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
+        color = Color(0xFF202228),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color(0xFF2C313B)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = AccentCyan,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
 
-        Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    fontSize = 12.sp,
+                    color = Color(0xFF8E929E)
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                tint = Color(0xFF8E929E).copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -266,39 +256,175 @@ private fun SettingsSwitchItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp)),
+        color = Color(0xFF202228),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color(0xFF2C313B)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = AccentCyan,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
 
-        Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    fontSize = 12.sp,
+                    color = Color(0xFF8E929E)
+                )
+            }
+
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.Black,
+                    checkedTrackColor = AccentGold,
+                    uncheckedThumbColor = Color(0xFF8E929E),
+                    uncheckedTrackColor = Color(0xFF2C313B)
+                )
             )
         }
-
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
     }
+}
+
+@Composable
+private fun SettingsInfoItem(
+    icon: ImageVector,
+    title: String,
+    value: String
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp)),
+        color = Color(0xFF202228),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color(0xFF2C313B)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = AccentCyan,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = value,
+                    fontSize = 12.sp,
+                    color = Color(0xFF8E929E)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeSelectionDialog(
+    currentTheme: String,
+    onThemeSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Choose App Theme",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        },
+        containerColor = Color(0xFF22242B),
+        text = {
+            Column {
+                val themes = listOf(
+                    "SYSTEM" to "System Default",
+                    "DARK" to "Dark Theme (Signature)",
+                    "LIGHT" to "Light Theme"
+                )
+
+                themes.forEach { (key, label) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { onThemeSelected(key) }
+                            .padding(vertical = 12.dp, horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = currentTheme == key,
+                            onClick = { onThemeSelected(key) },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = AccentGold,
+                                unselectedColor = Color(0xFF8E929E)
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = label,
+                            fontSize = 15.sp,
+                            color = Color.White,
+                            fontWeight = if (currentTheme == key) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = AccentGold, fontWeight = FontWeight.Bold)
+            }
+        }
+    )
 }

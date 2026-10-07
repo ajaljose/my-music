@@ -1,16 +1,22 @@
 package com.example.musicplayer.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MusicOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
 
 @Composable
 fun EmptyState(
@@ -31,19 +37,28 @@ fun EmptyState(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                modifier = Modifier.size(64.dp)
-            )
+            Surface(
+                modifier = Modifier.size(76.dp),
+                shape = CircleShape,
+                color = Color(0xFF2C313B)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = AccentCyan,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge,
+                fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
 
@@ -51,18 +66,27 @@ fun EmptyState(
 
             Text(
                 text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                fontSize = 14.sp,
+                color = Color(0xFF8E929E),
+                textAlign = TextAlign.Center,
+                lineHeight = 20.sp
             )
 
             if (actionButtonText != null && onActionClick != null) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = onActionClick,
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AccentGold,
+                        contentColor = Color.Black
+                    )
                 ) {
-                    Text(text = actionButtonText)
+                    Text(
+                        text = actionButtonText,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }

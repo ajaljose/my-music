@@ -2,6 +2,7 @@ package com.example.musicplayer.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Timer
@@ -10,8 +11,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.SleepTimerState
+import com.example.musicplayer.ui.theme.AccentCyan
+import com.example.musicplayer.ui.theme.AccentGold
 
 @Composable
 fun SleepTimerDialog(
@@ -28,15 +35,30 @@ fun SleepTimerDialog(
         onDismissRequest = onDismiss,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Rounded.Timer,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                Surface(
+                    modifier = Modifier.size(36.dp),
+                    shape = CircleShape,
+                    color = Color(0xFF2C313B)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Rounded.Timer,
+                            contentDescription = null,
+                            tint = AccentGold,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Sleep Timer",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Sleep Timer")
             }
         },
+        containerColor = Color(0xFF22242B),
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 if (sleepTimerState.isActive) {
@@ -50,8 +72,9 @@ fun SleepTimerDialog(
 
                     Text(
                         text = timerLabel,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AccentGold,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
@@ -61,19 +84,27 @@ fun SleepTimerDialog(
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = Color.White
                         ),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Turn Off Sleep Timer")
+                        Text("Turn Off Sleep Timer", fontWeight = FontWeight.Bold)
                     }
                 } else if (showCustomInput) {
                     OutlinedTextField(
                         value = customMinutesText,
                         onValueChange = { customMinutesText = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("Minutes (1-480)") },
+                        label = { Text("Minutes (1-480)", color = Color(0xFF8E929E)) },
+                        textStyle = TextStyle(color = Color.White, fontSize = 15.sp),
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AccentGold,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.15f),
+                            cursorColor = AccentGold
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -82,7 +113,7 @@ fun SleepTimerDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(onClick = { showCustomInput = false }) {
-                            Text("Back")
+                            Text("Back", color = Color(0xFF8E929E))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
@@ -93,9 +124,14 @@ fun SleepTimerDialog(
                                     onDismiss()
                                 }
                             },
-                            enabled = (customMinutesText.toIntOrNull() ?: 0) > 0
+                            enabled = (customMinutesText.toIntOrNull() ?: 0) > 0,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AccentGold,
+                                contentColor = Color.Black
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Start")
+                            Text("Start", fontWeight = FontWeight.Bold)
                         }
                     }
                 } else {
@@ -104,16 +140,17 @@ fun SleepTimerDialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(10.dp))
                                 .clickable {
                                     onSetTimerMinutes(minutes)
                                     onDismiss()
                                 }
-                                .padding(vertical = 12.dp, horizontal = 4.dp)
+                                .padding(vertical = 12.dp, horizontal = 6.dp)
                         ) {
                             Text(
                                 text = "$minutes minutes",
-                                style = MaterialTheme.typography.bodyLarge
+                                fontSize = 15.sp,
+                                color = Color.White
                             )
                         }
                     }
@@ -121,30 +158,32 @@ fun SleepTimerDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .clickable {
                                 onSetTimerEndOfSong()
                                 onDismiss()
                             }
-                            .padding(vertical = 12.dp, horizontal = 4.dp)
+                            .padding(vertical = 12.dp, horizontal = 6.dp)
                     ) {
                         Text(
                             text = "End of current song",
-                            style = MaterialTheme.typography.bodyLarge
+                            fontSize = 15.sp,
+                            color = Color.White
                         )
                     }
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .clickable { showCustomInput = true }
-                            .padding(vertical = 12.dp, horizontal = 4.dp)
+                            .padding(vertical = 12.dp, horizontal = 6.dp)
                     ) {
                         Text(
                             text = "Custom time...",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AccentGold
                         )
                     }
                 }
@@ -153,7 +192,7 @@ fun SleepTimerDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = Color(0xFF8E929E))
             }
         },
         shape = RoundedCornerShape(20.dp)

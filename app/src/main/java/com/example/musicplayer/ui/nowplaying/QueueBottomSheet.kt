@@ -7,18 +7,21 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ClearAll
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.components.ArtworkImage
+import com.example.musicplayer.ui.theme.AccentGold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +35,8 @@ fun QueueBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = Color(0xFF22242B)
     ) {
         Column(
             modifier = Modifier
@@ -47,26 +51,27 @@ fun QueueBottomSheet(
                 Column {
                     Text(
                         text = "Current Queue",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
                     Text(
-                        text = "${queue.size} songs",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "${queue.size} tracks",
+                        fontSize = 12.sp,
+                        color = Color(0xFF8E929E)
                     )
                 }
 
                 if (queue.isNotEmpty()) {
                     TextButton(onClick = onClearQueue) {
-                        Icon(imageVector = Icons.Rounded.ClearAll, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(imageVector = Icons.Rounded.ClearAll, contentDescription = null, tint = AccentGold, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Clear")
+                        Text("Clear", color = AccentGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.White.copy(alpha = 0.08f))
 
             if (queue.isEmpty()) {
                 Box(
@@ -77,8 +82,8 @@ fun QueueBottomSheet(
                 ) {
                     Text(
                         text = "Queue is empty",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontSize = 15.sp,
+                        color = Color(0xFF8E929E)
                     )
                 }
             } else {
@@ -101,8 +106,8 @@ fun QueueBottomSheet(
                                 artworkUri = song.albumArtUri,
                                 songUri = song.contentUri,
                                 path = song.path,
-                                size = 42.dp,
-                                shape = RoundedCornerShape(8.dp),
+                                size = 44.dp,
+                                shape = RoundedCornerShape(10.dp),
                                 seed = song.album
                             )
 
@@ -111,18 +116,28 @@ fun QueueBottomSheet(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = song.title,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.SemiBold,
+                                    color = if (isCurrent) AccentGold else Color.White,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = song.artist,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF8E929E),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            if (isCurrent) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Equalizer,
+                                    contentDescription = null,
+                                    tint = AccentGold,
+                                    modifier = Modifier.size(20.dp).padding(end = 6.dp)
                                 )
                             }
 
@@ -133,7 +148,7 @@ fun QueueBottomSheet(
                                 Icon(
                                     imageVector = Icons.Rounded.DeleteOutline,
                                     contentDescription = "Remove from queue",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    tint = Color(0xFF8E929E),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
