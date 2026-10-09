@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui.artists
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -51,7 +52,7 @@ fun ArtistDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Curved Dome Header with Overlapping Artist Icon
         CurvedHeader(
@@ -72,7 +73,7 @@ fun ArtistDetailScreen(
                             .shadow(20.dp, CircleShape)
                             .border(2.dp, Color.White.copy(alpha = 0.2f), CircleShape),
                         shape = CircleShape,
-                        color = Color(0xFF2C313B)
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -104,7 +105,7 @@ fun ArtistDetailScreen(
                         text = artistName,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -114,7 +115,7 @@ fun ArtistDetailScreen(
                     Text(
                         text = "${songs.size} tracks",
                         fontSize = 14.sp,
-                        color = Color(0xFF8E929E)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(18.dp))
@@ -142,9 +143,9 @@ fun ArtistDetailScreen(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color.White
+                                contentColor = MaterialTheme.colorScheme.onBackground
                             ),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
                             Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(6.dp))

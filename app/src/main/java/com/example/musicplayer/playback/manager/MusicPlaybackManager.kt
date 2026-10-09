@@ -374,6 +374,37 @@ class MusicPlaybackManager @Inject constructor(
         _playbackState.update { it.copy(repeatMode = next) }
     }
 
+    fun toggleFavorite(songId: Long, targetFavoriteStatus: Boolean? = null) {
+        val currentSong = _playbackState.value.currentSong
+        val isFav = targetFavoriteStatus ?: if (currentSong?.id == songId) !currentSong.isFavorite else true
+
+        updateSongFavoriteStatus(songId, isFav)
+
+        serviceScope.launch {
+            musicRepository.toggleFavorite(songId, isFav)
+        }
+    }
+
+    fun updateSongFavoriteStatus(songId: Long, isFavorite: Boolean) {
+        currentPlaylistSongs = currentPlaylistSongs.map { song ->
+            if (song.id == songId) song.copy(isFavorite = isFavorite) else song
+        }
+        _playbackState.update { state ->
+            val updatedCurrent = if (state.currentSong?.id == songId) {
+                state.currentSong.copy(isFavorite = isFavorite)
+            } else {
+                state.currentSong
+            }
+            val updatedQueue = state.queue.map { song ->
+                if (song.id == songId) song.copy(isFavorite = isFavorite) else song
+            }
+            state.copy(
+                currentSong = updatedCurrent,
+                queue = updatedQueue
+            )
+        }
+    }
+
     fun addToQueue(song: Song) {
         val controller = mediaController ?: return
         currentPlaylistSongs = currentPlaylistSongs + song

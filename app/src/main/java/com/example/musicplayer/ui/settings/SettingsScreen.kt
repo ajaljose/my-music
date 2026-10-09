@@ -40,7 +40,7 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         CurvedHeader(
             title = "Settings",
@@ -73,18 +73,6 @@ fun SettingsScreen(
                     subtitle = themeLabel,
                     onClick = { showThemeDialog = true }
                 )
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                item {
-                    SettingsSwitchItem(
-                        icon = Icons.Rounded.ColorLens,
-                        title = "Dynamic Colors (Material You)",
-                        subtitle = "Use colors derived from wallpaper",
-                        checked = uiState.dynamicColor,
-                        onCheckedChange = { viewModel.setDynamicColor(it) }
-                    )
-                }
             }
 
             // Playback Category
@@ -197,9 +185,9 @@ private fun SettingsClickableItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF202228),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -209,7 +197,7 @@ private fun SettingsClickableItem(
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = CircleShape,
-                color = Color(0xFF2C313B)
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -228,87 +216,21 @@ private fun SettingsClickableItem(
                     text = title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
-                    color = Color(0xFF8E929E)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Icon(
                 imageVector = Icons.Rounded.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF8E929E).copy(alpha = 0.6f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 modifier = Modifier.size(20.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsSwitchItem(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp)),
-        color = Color(0xFF202228),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = Color(0xFF2C313B)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = AccentCyan,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
-                    fontSize = 12.sp,
-                    color = Color(0xFF8E929E)
-                )
-            }
-
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.Black,
-                    checkedTrackColor = AccentGold,
-                    uncheckedThumbColor = Color(0xFF8E929E),
-                    uncheckedTrackColor = Color(0xFF2C313B)
-                )
             )
         }
     }
@@ -324,8 +246,8 @@ private fun SettingsInfoItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp)),
-        color = Color(0xFF202228),
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -335,7 +257,7 @@ private fun SettingsInfoItem(
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = CircleShape,
-                color = Color(0xFF2C313B)
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -354,13 +276,13 @@ private fun SettingsInfoItem(
                     text = title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = value,
                     fontSize = 12.sp,
-                    color = Color(0xFF8E929E)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -380,10 +302,10 @@ private fun ThemeSelectionDialog(
                 text = "Choose App Theme",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
-        containerColor = Color(0xFF22242B),
+        containerColor = MaterialTheme.colorScheme.surface,
         text = {
             Column {
                 val themes = listOf(
@@ -406,14 +328,14 @@ private fun ThemeSelectionDialog(
                             onClick = { onThemeSelected(key) },
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = AccentGold,
-                                unselectedColor = Color(0xFF8E929E)
+                                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = label,
                             fontSize = 15.sp,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = if (currentTheme == key) FontWeight.Bold else FontWeight.Normal
                         )
                     }

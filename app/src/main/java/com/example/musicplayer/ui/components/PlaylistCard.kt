@@ -45,7 +45,7 @@ fun PlaylistCard(
         Surface(
             modifier = Modifier.size(50.dp),
             shape = RoundedCornerShape(14.dp),
-            color = Color(0xFF2C313B)
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -66,7 +66,7 @@ fun PlaylistCard(
                 text = playlist.name,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -76,7 +76,7 @@ fun PlaylistCard(
             Text(
                 text = "${playlist.songCount} tracks",
                 fontSize = 13.sp,
-                color = Color(0xFF8E929E),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -90,7 +90,7 @@ fun PlaylistCard(
                 Icon(
                     imageVector = Icons.Rounded.MoreVert,
                     contentDescription = "Playlist options",
-                    tint = Color(0xFF8E929E),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }

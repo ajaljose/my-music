@@ -48,10 +48,10 @@ fun MiniPlayer(
             .padding(horizontal = 10.dp, vertical = 4.dp)
             .shadow(elevation = 12.dp, shape = RoundedCornerShape(16.dp), spotColor = Color.Black)
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF202227),
-        tonalElevation = 0.dp
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp
     ) {
         Column {
             // Golden progress indicator bar
@@ -61,7 +61,7 @@ fun MiniPlayer(
                     .fillMaxWidth()
                     .height(2.5.dp),
                 color = AccentGold,
-                trackColor = Color(0xFF2C2E38)
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
             )
 
             Row(
@@ -89,7 +89,7 @@ fun MiniPlayer(
                         text = song.title,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -97,7 +97,7 @@ fun MiniPlayer(
                     Text(
                         text = song.artist,
                         fontSize = 12.sp,
-                        color = Color(0xFF8E929E),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -110,7 +110,7 @@ fun MiniPlayer(
                     Icon(
                         imageVector = if (song.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (song.isFavorite) AccentPink else Color(0xFF8E929E),
+                        tint = if (song.isFavorite) AccentPink else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -142,7 +142,7 @@ fun MiniPlayer(
                     Icon(
                         imageVector = Icons.Rounded.SkipNext,
                         contentDescription = "Next track",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(22.dp)
                     )
                 }

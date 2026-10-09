@@ -21,29 +21,38 @@ private val DarkColorScheme = darkColorScheme(
     surface = SurfaceDark,
     surfaceVariant = SurfaceVariantDark,
     surfaceContainer = CardBackgroundDark,
+    surfaceContainerHigh = BadgeBackgroundDark,
     onBackground = OnSurfaceDark,
     onSurface = OnSurfaceDark,
-    onSurfaceVariant = OnSurfaceVariantDark
+    onSurfaceVariant = OnSurfaceVariantDark,
+    outline = Color(0x14FFFFFF)
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = AccentTeal,
     onPrimary = Color.White,
+    primaryContainer = AccentTeal.copy(alpha = 0.15f),
+    onPrimaryContainer = AccentTeal,
     secondary = AccentGold,
     onSecondary = Color.Black,
+    secondaryContainer = AccentGold.copy(alpha = 0.15f),
+    onSecondaryContainer = Color.Black,
     tertiary = AccentCyan,
     background = BackgroundLight,
     surface = SurfaceLight,
     surfaceVariant = SurfaceVariantLight,
+    surfaceContainer = SurfaceLight,
+    surfaceContainerHigh = Color(0xFFE8EAF0),
     onBackground = OnSurfaceLight,
     onSurface = OnSurfaceLight,
-    onSurfaceVariant = OnSurfaceVariantLight
+    onSurfaceVariant = OnSurfaceVariantLight,
+    outline = Color(0x14000000)
 )
 
 @Composable
 fun HarmoniaTheme(
-    darkTheme: Boolean = true, // Default to stunning dark theme matching the screenshot
-    dynamicColor: Boolean = false, // Keep consistent rich theme colors
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

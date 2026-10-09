@@ -39,21 +39,21 @@ fun SearchTopBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(20.dp)),
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp)),
         placeholder = {
             Text(
                 text = placeholderText,
                 fontSize = 14.sp,
-                color = Color(0xFF8E929E)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        textStyle = TextStyle(color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium),
+        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium),
         leadingIcon = {
             IconButton(onClick = onCloseSearch) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowBack,
                     contentDescription = "Close search",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
@@ -63,7 +63,7 @@ fun SearchTopBar(
                     Icon(
                         imageVector = Icons.Rounded.Clear,
                         contentDescription = "Clear search",
-                        tint = Color(0xFF8E929E)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
@@ -77,8 +77,8 @@ fun SearchTopBar(
         singleLine = true,
         shape = RoundedCornerShape(20.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFF22242B),
-            unfocusedContainerColor = Color(0xFF22242B),
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             cursorColor = AccentGold

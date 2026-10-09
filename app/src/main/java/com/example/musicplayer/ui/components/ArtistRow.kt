@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,7 +40,7 @@ fun ArtistRow(
         Surface(
             modifier = Modifier.size(50.dp),
             shape = CircleShape,
-            color = Color(0xFF2C313B)
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -60,7 +61,7 @@ fun ArtistRow(
                 text = artist.name,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -77,7 +78,7 @@ fun ArtistRow(
             Text(
                 text = subtitle,
                 fontSize = 13.sp,
-                color = Color(0xFF8E929E),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

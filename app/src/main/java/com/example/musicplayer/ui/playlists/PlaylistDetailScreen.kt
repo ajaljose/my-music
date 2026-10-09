@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui.playlists
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -54,7 +55,7 @@ fun PlaylistDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Curved Dome Header with Overlapping Badge
         CurvedHeader(
@@ -78,7 +79,7 @@ fun PlaylistDetailScreen(
                             .shadow(20.dp, RoundedCornerShape(26.dp))
                             .border(2.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(26.dp)),
                         shape = RoundedCornerShape(26.dp),
-                        color = Color(0xFF2C313B)
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -117,7 +118,7 @@ fun PlaylistDetailScreen(
                             text = playlistName,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -127,7 +128,7 @@ fun PlaylistDetailScreen(
                         Text(
                             text = "${songs.size} tracks",
                             fontSize = 14.sp,
-                            color = Color(0xFF8E929E)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(18.dp))
@@ -155,9 +156,9 @@ fun PlaylistDetailScreen(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(14.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = Color.White
+                                    contentColor = MaterialTheme.colorScheme.onBackground
                                 ),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                             ) {
                                 Icon(imageVector = Icons.Rounded.Shuffle, contentDescription = null, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(6.dp))

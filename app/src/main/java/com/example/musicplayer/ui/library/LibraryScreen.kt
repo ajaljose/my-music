@@ -43,7 +43,7 @@ fun LibraryScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         CurvedHeader(
             title = "Your Library",
@@ -139,7 +139,7 @@ private fun LibraryHeroCard(
             .clip(RoundedCornerShape(18.dp))
             .border(1.dp, iconColor.copy(alpha = 0.25f), RoundedCornerShape(18.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF22242B),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(18.dp)
     ) {
         Row(
@@ -149,7 +149,7 @@ private fun LibraryHeroCard(
             Surface(
                 modifier = Modifier.size(52.dp),
                 shape = CircleShape,
-                color = Color(0xFF2C313B)
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -168,20 +168,20 @@ private fun LibraryHeroCard(
                     text = title,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     fontSize = 13.sp,
-                    color = Color(0xFF8E929E)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Icon(
                 imageVector = Icons.Rounded.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF8E929E),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -200,9 +200,9 @@ private fun LibraryNavCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF202228),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -212,7 +212,7 @@ private fun LibraryNavCard(
             Surface(
                 modifier = Modifier.size(44.dp),
                 shape = CircleShape,
-                color = Color(0xFF2B313C)
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -231,20 +231,20 @@ private fun LibraryNavCard(
                     text = title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = count,
                     fontSize = 12.sp,
-                    color = Color(0xFF8E929E)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Icon(
                 imageVector = Icons.Rounded.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF8E929E).copy(alpha = 0.6f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 modifier = Modifier.size(20.dp)
             )
         }

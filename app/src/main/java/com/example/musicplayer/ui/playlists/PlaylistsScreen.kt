@@ -46,7 +46,7 @@ fun PlaylistsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         CurvedHeader(
             title = "Playlists",

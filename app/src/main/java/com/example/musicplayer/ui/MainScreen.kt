@@ -6,6 +6,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -33,24 +34,21 @@ fun MainScreen(
 
     var isNowPlayingExpanded by remember { mutableStateOf(false) }
 
-    val darkTheme = when (themeMode) {
+    val systemDark = isSystemInDarkTheme()
+    val isDark = when (themeMode) {
         "DARK" -> true
         "LIGHT" -> false
-        else -> true // Default to signature dark theme matching screenshot
+        else -> systemDark
     }
 
-
-
-
-
     HarmoniaTheme(
-        darkTheme = darkTheme,
+        darkTheme = isDark,
         dynamicColor = dynamicColor
     ) {
         Scaffold(
-            containerColor = BackgroundDark,
+            containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
-                Column(modifier = Modifier.background(BackgroundDark)) {
+                Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                     if (playbackState.currentSong != null && !isNowPlayingExpanded) {
                         MiniPlayer(
                             playbackState = playbackState,

@@ -58,12 +58,12 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Top Curved Dome Hero Header matching signature style
         CurvedHeader(
             title = "My Music",
-            subtitle = if (uiState.recentlyAdded.isNotEmpty()) "${uiState.recentlyAdded.size} songs available" else "Offline Music Player",
+            subtitle =null,
             headerHeight = 140.dp,
             actions = {
                 IconButton(onClick = onNavigateToSettings) {
@@ -293,9 +293,9 @@ private fun QuickNavChip(
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF202228),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp)
     ) {
         Column(
@@ -305,7 +305,7 @@ private fun QuickNavChip(
             Surface(
                 modifier = Modifier.size(34.dp),
                 shape = CircleShape,
-                color = Color(0xFF2B313C)
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -321,7 +321,7 @@ private fun QuickNavChip(
                 text = label,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1
             )
         }
@@ -339,9 +339,9 @@ private fun RecentlyPlayedCard(
         modifier = modifier
             .width(130.dp)
             .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, if (isPlaying) AccentGold else Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
+            .border(1.dp, if (isPlaying) AccentGold else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF22242B),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
@@ -381,7 +381,7 @@ private fun RecentlyPlayedCard(
                 text = song.title,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (isPlaying) AccentGold else Color.White,
+                color = if (isPlaying) AccentGold else MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -389,7 +389,7 @@ private fun RecentlyPlayedCard(
             Text(
                 text = song.artist,
                 fontSize = 11.sp,
-                color = Color(0xFF8E929E),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

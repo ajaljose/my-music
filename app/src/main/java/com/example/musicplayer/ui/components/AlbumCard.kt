@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,9 +28,9 @@ fun AlbumCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.06f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        color = Color(0xFF22242B),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -54,7 +55,7 @@ fun AlbumCard(
                 text = album.name,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -64,7 +65,7 @@ fun AlbumCard(
             Text(
                 text = "${album.artist} • ${album.songCount} tracks",
                 fontSize = 12.sp,
-                color = Color(0xFF8E929E),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

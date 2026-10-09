@@ -35,7 +35,7 @@ fun SongRow(
     showDuration: Boolean = true,
     showFavorite: Boolean = true
 ) {
-    val titleColor = if (isPlaying) AccentGold else Color.White
+    val titleColor = if (isPlaying) AccentGold else MaterialTheme.colorScheme.onSurface
     val fontWeight = if (isPlaying) FontWeight.Bold else FontWeight.SemiBold
 
     Row(
@@ -97,7 +97,7 @@ fun SongRow(
             Text(
                 text = if (song.album.isNotBlank()) "${song.artist} • ${song.album}" else song.artist,
                 fontSize = 13.sp,
-                color = Color(0xFF8E929E),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -108,7 +108,7 @@ fun SongRow(
             Text(
                 text = song.formattedDuration,
                 fontSize = 12.sp,
-                color = Color(0xFF8E929E),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -121,7 +121,7 @@ fun SongRow(
                 Icon(
                     imageVector = if (song.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = if (song.isFavorite) "Remove from favorites" else "Add to favorites",
-                    tint = if (song.isFavorite) AccentPink else Color(0xFF8E929E).copy(alpha = 0.7f),
+                    tint = if (song.isFavorite) AccentPink else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     modifier = Modifier.size(19.dp)
                 )
             }
@@ -134,7 +134,7 @@ fun SongRow(
             Icon(
                 imageVector = Icons.Rounded.MoreVert,
                 contentDescription = "Song options",
-                tint = Color(0xFF8E929E),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }

@@ -41,14 +41,10 @@ class MainViewModel @Inject constructor(
 
     fun toggleFavoriteCurrentSong() {
         val currentSong = playbackState.value.currentSong ?: return
-        viewModelScope.launch {
-            musicRepository.toggleFavorite(currentSong.id, !currentSong.isFavorite)
-        }
+        playbackManager.toggleFavorite(currentSong.id)
     }
 
     fun toggleFavorite(song: Song) {
-        viewModelScope.launch {
-            musicRepository.toggleFavorite(song.id, !song.isFavorite)
-        }
+        playbackManager.toggleFavorite(song.id, !song.isFavorite)
     }
 }

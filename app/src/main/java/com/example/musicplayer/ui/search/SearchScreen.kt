@@ -44,7 +44,7 @@ fun SearchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Top Curved Dome with Search Bar
         CurvedHeader(
@@ -81,8 +81,8 @@ fun SearchScreen(
                         .clip(RoundedCornerShape(20.dp))
                         .clickable { viewModel.onFilterChange(filter) },
                     shape = RoundedCornerShape(20.dp),
-                    color = if (isSelected) AccentGold else Color(0xFF22242B),
-                    contentColor = if (isSelected) Color.Black else Color(0xFF8E929E)
+                    color = if (isSelected) AccentGold else MaterialTheme.colorScheme.surface,
+                    contentColor = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurfaceVariant
                 ) {
                     Text(
                         text = filter.label,

@@ -90,9 +90,7 @@ class ArtistsViewModel @Inject constructor(
     }
 
     fun toggleFavorite(song: Song) {
-        viewModelScope.launch {
-            musicRepository.toggleFavorite(song.id, !song.isFavorite)
-        }
+        playbackManager.toggleFavorite(song.id, !song.isFavorite)
     }
 
     fun addToQueue(song: Song) {

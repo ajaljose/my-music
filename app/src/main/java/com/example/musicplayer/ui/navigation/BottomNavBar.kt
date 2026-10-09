@@ -41,10 +41,10 @@ fun BottomNavBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF141519))
+            .background(MaterialTheme.colorScheme.surface)
             .navigationBarsPadding()
     ) {
-        HorizontalDivider(color = Color.White.copy(alpha = 0.06f), thickness = 0.8.dp)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 0.8.dp)
 
         Row(
             modifier = Modifier
@@ -71,7 +71,7 @@ fun BottomNavBar(
                     else -> currentRoute == screen.route
                 }
 
-                val contentColor = if (selected) AccentGold else Color(0xFF8E929E)
+                val contentColor = if (selected) AccentGold else MaterialTheme.colorScheme.onSurfaceVariant
                 val interactionSource = remember { MutableInteractionSource() }
 
                 Column(
@@ -83,13 +83,13 @@ fun BottomNavBar(
                             indication = null
                         ) {
                             onItemClick()
-                            if (!selected) {
+                            if (currentRoute != screen.route) {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
                                     launchSingleTop = true
-                                    restoreState = true
+                                    restoreState = false
                                 }
                             }
                         },

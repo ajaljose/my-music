@@ -34,7 +34,7 @@ fun AlbumsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (uiState.isSearching) {
             SearchTopBar(

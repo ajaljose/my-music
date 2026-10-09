@@ -47,7 +47,7 @@ fun FoldersScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         CurvedHeader(
             title = selectedFolder?.name ?: "Folders",
