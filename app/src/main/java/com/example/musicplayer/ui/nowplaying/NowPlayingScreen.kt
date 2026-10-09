@@ -105,7 +105,7 @@ fun NowPlayingScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(350.dp)
+                        .height(500.dp)
                 ) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         val w = size.width
@@ -113,97 +113,113 @@ fun NowPlayingScreen(
                         val path = Path().apply {
                             moveTo(0f, 0f)
                             lineTo(w, 0f)
-                            lineTo(w, h * 0.65f)
+                            lineTo(w, h * 0.62f)
                             quadraticTo(
-                                w / 2f, h * 1.15f,
-                                0f, h * 0.65f
+                                w / 2f, h * 0.95f,
+                                0f, h * 0.62f
                             )
                             close()
                         }
                         drawPath(path = path, color = animatedProminentColor)
                     }
 
-                    // Top Bar overlay
-                    Row(
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .statusBarsPadding()
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxSize()
+                            .statusBarsPadding(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        IconButton(onClick = onClose) {
-                            Icon(
-                                imageVector = Icons.Rounded.KeyboardArrowDown,
-                                contentDescription = "Dismiss",
-                                tint = Color.White,
-                                modifier = Modifier.size(32.dp)
+                        // Top Bar overlay
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = onClose) {
+                                Icon(
+                                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                                    contentDescription = "Dismiss",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+
+                            Text(
+                                text = "Now Playing",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = { showSleepTimerDialog = true }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Timer,
+                                        contentDescription = "Sleep Timer",
+                                        tint = if (sleepTimerState.isActive) AccentGold else Color.White.copy(alpha = 0.85f),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                IconButton(onClick = { showQueueSheet = true }) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.QueueMusic,
+                                        contentDescription = "Queue",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(26.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // Large Album Art Box centered on the curve boundary
+                        Box(
+                            modifier = Modifier
+                                .size(380.dp)
+                                .pointerInput(Unit) {
+                                    detectHorizontalDragGestures(
+                                        onDragEnd = {
+                                            if (dragOffset < -80f) {
+                                                playbackManager.skipToNext()
+                                            } else if (dragOffset > 80f) {
+                                                playbackManager.skipToPrevious()
+                                            }
+                                            dragOffset = 0f
+                                        },
+                                        onDragCancel = { dragOffset = 0f },
+                                        onHorizontalDrag = { _, dragAmount ->
+                                            dragOffset += dragAmount
+                                        }
+                                    )
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ArtworkImage(
+                                artworkUri = currentSong.albumArtUri,
+                                songUri = currentSong.contentUri,
+                                path = currentSong.path,
+                                size = 380.dp,
+                                shape = RoundedCornerShape(26.dp),
+                                contentDescription = currentSong.title,
+                                seed = currentSong.album,
+                                modifier = Modifier
+                                    .size(380.dp)
+                                    .shadow(
+                                        elevation = 28.dp,
+                                        shape = RoundedCornerShape(26.dp),
+                                        ambientColor = Color.Black.copy(alpha = 0.5f),
+                                        spotColor = Color.Black.copy(alpha = 0.65f)
+                                    )
+                                    .border(
+                                        width = 1.5.dp,
+                                        color = Color.White.copy(alpha = 0.22f),
+                                        shape = RoundedCornerShape(26.dp)
+                                    )
                             )
                         }
-
-                        Text(
-                            text = "Now Playing",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = { showSleepTimerDialog = true }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Timer,
-                                    contentDescription = "Sleep Timer",
-                                    tint = if (sleepTimerState.isActive) AccentGold else Color.White.copy(alpha = 0.85f),
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                            IconButton(onClick = { showQueueSheet = true }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.QueueMusic,
-                                    contentDescription = "Queue",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(26.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    // Large Album Art Box centered on the curve boundary
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 6.dp)
-                            .pointerInput(Unit) {
-                                detectHorizontalDragGestures(
-                                    onDragEnd = {
-                                        if (dragOffset < -80) {
-                                            playbackManager.skipToNext()
-                                        } else if (dragOffset > 80) {
-                                            playbackManager.skipToPrevious()
-                                        }
-                                        dragOffset = 0f
-                                    },
-                                    onDragCancel = { dragOffset = 0f },
-                                    onHorizontalDrag = { _, dragAmount ->
-                                        dragOffset += dragAmount
-                                    }
-                                )
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ArtworkImage(
-                            artworkUri = currentSong.albumArtUri,
-                            songUri = currentSong.contentUri,
-                            path = currentSong.path,
-                            size = 260.dp,
-                            shape = RoundedCornerShape(22.dp),
-                            contentDescription = currentSong.title,
-                            seed = currentSong.album,
-                            modifier = Modifier
-                                .size(260.dp)
-                                .shadow(28.dp, RoundedCornerShape(22.dp), ambientColor = Color.Black.copy(alpha = 0.6f), spotColor = Color.Black)
-                                .border(1.5.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(22.dp))
-                        )
                     }
                 }
 
@@ -382,7 +398,7 @@ fun NowPlayingScreen(
                         .padding(horizontal = 18.dp, vertical = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(110.dp))
             }
         }
     }
@@ -493,6 +509,24 @@ private fun TrackInformationCard(
                 icon = Icons.Rounded.Album,
                 label = "ALBUM",
                 value = song.album.ifBlank { "Unknown Album" }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // YEAR RECORDED
+            TrackInfoRow(
+                icon = Icons.Rounded.CalendarToday,
+                label = "YEAR RECORDED",
+                value = if (song.year > 0) song.year.toString() else "Unknown Year"
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // COMPOSER
+            TrackInfoRow(
+                icon = Icons.Rounded.Edit,
+                label = "COMPOSER",
+                value = song.composer.ifBlank { "Unknown Composer" }
             )
         }
     }

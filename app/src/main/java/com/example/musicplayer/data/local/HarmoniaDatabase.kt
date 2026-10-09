@@ -17,7 +17,7 @@ import com.example.musicplayer.data.local.entities.SongEntity
         PlaylistSongCrossRef::class,
         PlaybackHistoryEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class HarmoniaDatabase : RoomDatabase() {

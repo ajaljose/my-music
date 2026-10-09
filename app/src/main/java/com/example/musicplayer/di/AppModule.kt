@@ -48,13 +48,15 @@ object AppModule {
         songDao: SongDao,
         playlistDao: PlaylistDao,
         playbackHistoryDao: PlaybackHistoryDao,
-        mediaStoreScanner: MediaStoreScanner
+        mediaStoreScanner: MediaStoreScanner,
+        playerPreferences: PlayerPreferences
     ): MusicRepository {
         return MusicRepositoryImpl(
             songDao = songDao,
             playlistDao = playlistDao,
             playbackHistoryDao = playbackHistoryDao,
-            mediaStoreScanner = mediaStoreScanner
+            mediaStoreScanner = mediaStoreScanner,
+            playerPreferences = playerPreferences
         )
     }
 }

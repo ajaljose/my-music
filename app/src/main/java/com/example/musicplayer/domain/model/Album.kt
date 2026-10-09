@@ -7,5 +7,7 @@ data class Album(
     val artistId: Long = 0,
     val songCount: Int,
     val year: Int = 0,
-    val albumArtUriString: String? = null
+    val albumArtUriString: String? = null,
+    val firstSongContentUriString: String? = null,
+    val firstSongPath: String? = null
 )

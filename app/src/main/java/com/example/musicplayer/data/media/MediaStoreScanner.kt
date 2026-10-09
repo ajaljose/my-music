@@ -38,6 +38,7 @@ class MediaStoreScanner @Inject constructor(
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.DATE_ADDED,
             MediaStore.Audio.Media.YEAR,
+            MediaStore.Audio.Media.COMPOSER,
             MediaStore.Audio.Media.TRACK,
             MediaStore.Audio.Media.SIZE,
             MediaStore.Audio.Media.MIME_TYPE,
@@ -65,6 +66,7 @@ class MediaStoreScanner @Inject constructor(
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
                 val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
                 val yearColumn = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)
+                val composerColumn = cursor.getColumnIndex(MediaStore.Audio.Media.COMPOSER)
                 val trackColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK)
                 val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
                 val mimeTypeColumn = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)
@@ -82,6 +84,8 @@ class MediaStoreScanner @Inject constructor(
                     val path = cursor.getString(dataColumn) ?: ""
                     val dateAdded = cursor.getLong(dateAddedColumn)
                     val year = if (yearColumn != -1 && !cursor.isNull(yearColumn)) cursor.getInt(yearColumn) else 0
+                    val rawComposer = if (composerColumn != -1 && !cursor.isNull(composerColumn)) cursor.getString(composerColumn) else null
+                    val composer = if (!rawComposer.isNullOrBlank() && rawComposer != "<unknown>") rawComposer.trim() else ""
                     val track = if (trackColumn != -1 && !cursor.isNull(trackColumn)) cursor.getInt(trackColumn) else 0
                     val size = cursor.getLong(sizeColumn)
                     val mimeType = if (mimeTypeColumn != -1 && !cursor.isNull(mimeTypeColumn)) {
@@ -130,6 +134,7 @@ class MediaStoreScanner @Inject constructor(
                             albumArtUriString = albumArtUriString,
                             dateAdded = dateAdded,
                             year = year,
+                            composer = composer,
                             trackNumber = track,
                             size = size,
                             mimeType = mimeType,

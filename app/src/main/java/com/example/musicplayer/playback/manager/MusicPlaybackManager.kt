@@ -2,6 +2,7 @@ package com.example.musicplayer.playback.manager
 
 import android.content.ComponentName
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -107,6 +108,7 @@ class MusicPlaybackManager @Inject constructor(
                         musicRepository.recordSongPlayed(currentSong.id)
                         preferences.setLastPlayedSong(currentSong.id, 0L)
                     }
+                    fetchNotificationArtworkForCurrentSong(currentSong)
                 }
                 if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO && _sleepTimerState.value.finishEndOfSong) {
                     pause()
@@ -211,6 +213,69 @@ class MusicPlaybackManager @Inject constructor(
         }
     }
 
+    private var artworkFetchJob: Job? = null
+
+    private fun fetchNotificationArtworkForCurrentSong(song: Song) {
+        artworkFetchJob?.cancel()
+        artworkFetchJob = serviceScope.launch {
+            val controller = mediaController ?: return@launch
+            val currentMediaItem = controller.currentMediaItem ?: return@launch
+
+            if (currentMediaItem.mediaMetadata.artworkData != null) return@launch
+
+            val bytes = loadArtworkBytes(song)
+            if (bytes != null && isActive) {
+                val currentController = mediaController ?: return@launch
+                val currentItem = currentController.currentMediaItem ?: return@launch
+
+                if (currentItem.mediaId == song.id.toString()) {
+                    val updatedMetadata = currentItem.mediaMetadata.buildUpon()
+                        .setArtworkData(bytes, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+                        .build()
+
+                    val updatedItem = currentItem.buildUpon()
+                        .setMediaMetadata(updatedMetadata)
+                        .build()
+
+                    val currentIndex = currentController.currentMediaItemIndex
+                    if (currentIndex >= 0 && currentIndex < currentController.mediaItemCount) {
+                        currentController.replaceMediaItem(currentIndex, updatedItem)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun loadArtworkBytes(song: Song): ByteArray? = withContext(Dispatchers.IO) {
+        if (!song.albumArtUriString.isNullOrBlank()) {
+            try {
+                val uri = Uri.parse(song.albumArtUriString)
+                context.contentResolver.openInputStream(uri)?.use { stream ->
+                    val bytes = stream.readBytes()
+                    if (bytes.isNotEmpty()) return@withContext bytes
+                }
+            } catch (_: Exception) {}
+        }
+
+        try {
+            val retriever = MediaMetadataRetriever()
+            if (song.contentUriString.isNotBlank()) {
+                retriever.setDataSource(context, song.contentUri)
+            } else if (song.path.isNotBlank()) {
+                retriever.setDataSource(song.path)
+            } else {
+                return@withContext null
+            }
+            val picture = retriever.embeddedPicture
+            retriever.release()
+            if (picture != null && picture.isNotEmpty()) {
+                return@withContext picture
+            }
+        } catch (_: Exception) {}
+
+        return@withContext null
+    }
+
     fun playSongs(songs: List<Song>, startIndex: Int = 0) {
         if (songs.isEmpty()) return
         val controller = mediaController ?: return
@@ -222,6 +287,11 @@ class MusicPlaybackManager @Inject constructor(
         controller.prepare()
         controller.play()
         updatePlaybackState()
+
+        val startSong = songs.getOrNull(startIndex)
+        if (startSong != null) {
+            fetchNotificationArtworkForCurrentSong(startSong)
+        }
     }
 
     fun playSong(song: Song) {

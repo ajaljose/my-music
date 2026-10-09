@@ -74,7 +74,7 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(SearchFilter.values()) { filter ->
+            items(SearchFilter.entries.toTypedArray()) { filter ->
                 val isSelected = uiState.filter == filter
                 Surface(
                     modifier = Modifier
@@ -110,7 +110,7 @@ fun SearchScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 90.dp)
+                contentPadding = PaddingValues(bottom = 120.dp)
             ) {
                 // Songs Section
                 if ((uiState.filter == SearchFilter.ALL || uiState.filter == SearchFilter.SONGS) && uiState.songs.isNotEmpty()) {

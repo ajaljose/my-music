@@ -28,6 +28,7 @@ class PlayerPreferences @Inject constructor(
         val LAST_PLAYED_POSITION = longPreferencesKey("last_played_position")
         val PAUSE_ON_HEADPHONE_DISCONNECT = booleanPreferencesKey("pause_on_headphone_disconnect")
         val GAPLESS_PLAYBACK = booleanPreferencesKey("gapless_playback")
+        val EXCLUDED_FOLDERS = stringSetPreferencesKey("excluded_folders")
     }
 
     val themeModeFlow: Flow<String> = context.dataStore.data.map { preferences ->
@@ -36,6 +37,10 @@ class PlayerPreferences @Inject constructor(
 
     val dynamicColorFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[Keys.DYNAMIC_COLOR] ?: true
+    }
+
+    val excludedFoldersFlow: Flow<Set<String>> = context.dataStore.data.map { preferences ->
+        preferences[Keys.EXCLUDED_FOLDERS] ?: emptySet()
     }
 
     val shuffleEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -107,6 +112,17 @@ class PlayerPreferences @Inject constructor(
     suspend fun setPauseOnHeadphoneDisconnect(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[Keys.PAUSE_ON_HEADPHONE_DISCONNECT] = enabled
+        }
+    }
+
+    suspend fun toggleExcludedFolder(folderPath: String) {
+        context.dataStore.edit { preferences ->
+            val current = preferences[Keys.EXCLUDED_FOLDERS] ?: emptySet()
+            if (current.contains(folderPath)) {
+                preferences[Keys.EXCLUDED_FOLDERS] = current - folderPath
+            } else {
+                preferences[Keys.EXCLUDED_FOLDERS] = current + folderPath
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui.folders
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -67,12 +68,13 @@ fun FoldersScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 90.dp)
+                    contentPadding = PaddingValues(bottom = 120.dp)
                 ) {
                     items(uiState.folders, key = { it.path }) { folder ->
                         FolderRow(
                             folder = folder,
-                            onClick = { viewModel.selectFolder(folder.path) }
+                            onClick = { viewModel.selectFolder(folder.path) },
+                            onToggleExclude = { viewModel.toggleExcludedFolder(folder.path) }
                         )
                     }
                 }
@@ -81,8 +83,48 @@ fun FoldersScreen(
             // Songs inside Selected Folder
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 90.dp)
+                contentPadding = PaddingValues(bottom = 120.dp)
             ) {
+                if (selectedFolder.isExcluded) {
+                    item {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            color = Color(0xFF382326),
+                            shape = RoundedCornerShape(14.dp),
+                            border = BorderStroke(1.dp, Color(0xFFFF5252).copy(alpha = 0.4f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Folder Excluded from App",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = Color(0xFFFF8A80)
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Media in this folder is currently hidden from library and playback.",
+                                        fontSize = 12.sp,
+                                        color = Color.White.copy(alpha = 0.8f)
+                                    )
+                                }
+                                TextButton(
+                                    onClick = { viewModel.toggleExcludedFolder(selectedFolder.path) }
+                                ) {
+                                    Text("Restore / Include", color = AccentGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                }
+                            }
+                        }
+                    }
+                }
                 item {
                     Row(
                         modifier = Modifier
@@ -181,6 +223,7 @@ fun FoldersScreen(
 private fun FolderRow(
     folder: Folder,
     onClick: () -> Unit,
+    onToggleExclude: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -194,13 +237,13 @@ private fun FolderRow(
         Surface(
             modifier = Modifier.size(48.dp),
             shape = CircleShape,
-            color = Color(0xFF2C313B)
+            color = if (folder.isExcluded) Color(0xFF3B282A) else Color(0xFF2C313B)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    imageVector = Icons.Rounded.Folder,
+                    imageVector = if (folder.isExcluded) Icons.Rounded.FolderOff else Icons.Rounded.Folder,
                     contentDescription = null,
-                    tint = AccentCyan,
+                    tint = if (folder.isExcluded) Color(0xFFFF5252) else AccentCyan,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -209,14 +252,32 @@ private fun FolderRow(
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = folder.name,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = folder.name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (folder.isExcluded) Color.White.copy(alpha = 0.5f) else Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                if (folder.isExcluded) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        color = Color(0xFFFF5252).copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Excluded",
+                            color = Color(0xFFFF8A80),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = "${folder.songCount} tracks • ${folder.path}",
@@ -224,6 +285,18 @@ private fun FolderRow(
                 color = Color(0xFF8E929E),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        IconButton(
+            onClick = onToggleExclude,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = if (folder.isExcluded) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility,
+                contentDescription = if (folder.isExcluded) "Include Folder in App" else "Exclude Folder from App",
+                tint = if (folder.isExcluded) Color(0xFFFF8A80) else Color(0xFF8E929E),
+                modifier = Modifier.size(22.dp)
             )
         }
 

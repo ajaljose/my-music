@@ -36,64 +36,14 @@ class MusicServiceCallback @Inject constructor(
         mediaItems: MutableList<MediaItem>
     ): ListenableFuture<MutableList<MediaItem>> {
         val updatedMediaItems = mediaItems.map { mediaItem ->
-            val artworkData = if (mediaItem.mediaMetadata.artworkData == null) {
-                getArtworkBytes(context, mediaItem)
-            } else {
-                mediaItem.mediaMetadata.artworkData
-            }
-
-            val updatedMetadata = if (artworkData != null) {
-                mediaItem.mediaMetadata.buildUpon()
-                    .setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
-                    .build()
-            } else {
-                mediaItem.mediaMetadata
-            }
-
-            val baseItem = if (mediaItem.localConfiguration?.uri != null) {
+            if (mediaItem.localConfiguration?.uri != null) {
                 mediaItem
             } else {
                 val uri = mediaItem.requestMetadata.mediaUri ?: Uri.parse(mediaItem.mediaId)
                 mediaItem.buildUpon().setUri(uri).build()
             }
-
-            baseItem.buildUpon()
-                .setMediaMetadata(updatedMetadata)
-                .build()
         }.toMutableList()
         return Futures.immediateFuture(updatedMediaItems)
-    }
-
-    private fun getArtworkBytes(context: Context, mediaItem: MediaItem): ByteArray? {
-        val artworkUri = mediaItem.mediaMetadata.artworkUri
-        val requestUri = mediaItem.requestMetadata.mediaUri ?: mediaItem.localConfiguration?.uri
-
-        // 1. Try artworkUri
-        if (artworkUri != null) {
-            try {
-                context.contentResolver.openInputStream(artworkUri)?.use { stream ->
-                    val bytes = stream.readBytes()
-                    if (bytes.isNotEmpty()) return bytes
-                }
-            } catch (_: Exception) {}
-        }
-
-        // 2. Try MediaMetadataRetriever on requestUri
-        if (requestUri != null) {
-            val retriever = MediaMetadataRetriever()
-            try {
-                retriever.setDataSource(context, requestUri)
-                val picture = retriever.embeddedPicture
-                if (picture != null && picture.isNotEmpty()) {
-                    return picture
-                }
-            } catch (_: Exception) {
-            } finally {
-                try { retriever.release() } catch (_: Exception) {}
-            }
-        }
-
-        return null
     }
 
     override fun onGetLibraryRoot(

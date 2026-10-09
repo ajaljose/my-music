@@ -16,6 +16,7 @@ data class Song(
     val albumArtUriString: String? = null,
     val dateAdded: Long = 0,
     val year: Int = 0,
+    val composer: String = "",
     val trackNumber: Int = 0,
     val size: Long = 0,
     val mimeType: String = "audio/mpeg",

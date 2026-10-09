@@ -45,6 +45,12 @@ class FoldersViewModel @Inject constructor(
         _selectedFolderPath.value = folderPath
     }
 
+    fun toggleExcludedFolder(folderPath: String) {
+        viewModelScope.launch {
+            musicRepository.toggleExcludedFolder(folderPath)
+        }
+    }
+
     fun playSong(song: Song, queue: List<Song>) {
         val index = queue.indexOfFirst { it.id == song.id }.coerceAtLeast(0)
         playbackManager.playSongs(queue, index)

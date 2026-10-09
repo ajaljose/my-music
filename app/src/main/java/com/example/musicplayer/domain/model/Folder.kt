@@ -5,5 +5,6 @@ data class Folder(
     val name: String,
     val songCount: Int,
     val songs: List<Song> = emptyList(),
-    val subFolders: List<Folder> = emptyList()
+    val subFolders: List<Folder> = emptyList(),
+    val isExcluded: Boolean = false
 )

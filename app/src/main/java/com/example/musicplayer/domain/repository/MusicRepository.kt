@@ -32,4 +32,6 @@ interface MusicRepository {
     suspend fun toggleFavorite(songId: Long, isFavorite: Boolean)
     suspend fun recordSongPlayed(songId: Long)
     suspend fun rescanLibrary(): Int
+    fun getExcludedFoldersFlow(): Flow<Set<String>>
+    suspend fun toggleExcludedFolder(folderPath: String)
 }

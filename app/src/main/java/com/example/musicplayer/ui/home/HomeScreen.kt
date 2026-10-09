@@ -362,14 +362,15 @@ private fun RecentlyPlayedCard(
                             .padding(4.dp)
                             .size(24.dp),
                         shape = CircleShape,
-                        color = AccentGold
+                        color = Color.Black.copy(alpha = 0.7f)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = Icons.Rounded.Equalizer,
-                                contentDescription = null,
-                                tint = Color.Black,
-                                modifier = Modifier.size(14.dp)
+                            AnimatedEqualizer(
+                                isPlaying = isPlaying,
+                                barColor = AccentGold,
+                                barWidth = 2.dp,
+                                barSpacing = 1.5.dp,
+                                maxBarHeight = 12.dp
                             )
                         }
                     }

@@ -13,6 +13,8 @@ import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.fetch.SourceResult
 import coil.request.Options
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
 
@@ -28,13 +30,13 @@ class AudioArtworkFetcher(
     private val options: Options
 ) : Fetcher {
 
-    override suspend fun fetch(): FetchResult? {
+    override suspend fun fetch(): FetchResult? = withContext(Dispatchers.IO) {
         // 1. Try loading artworkUri if provided
         if (data.artworkUri != null) {
             try {
                 val stream = context.contentResolver.openInputStream(data.artworkUri)
                 if (stream != null) {
-                    return SourceResult(
+                    return@withContext SourceResult(
                         source = ImageSource(stream.source().buffer(), context),
                         mimeType = null,
                         dataSource = DataSource.DISK
@@ -53,14 +55,14 @@ class AudioArtworkFetcher(
             } else if (!data.path.isNullOrBlank()) {
                 retriever.setDataSource(data.path)
             } else {
-                return null
+                return@withContext null
             }
 
             val picture = retriever.embeddedPicture
             if (picture != null) {
                 val bitmap = BitmapFactory.decodeByteArray(picture, 0, picture.size)
                 if (bitmap != null) {
-                    return DrawableResult(
+                    return@withContext DrawableResult(
                         drawable = BitmapDrawable(context.resources, bitmap),
                         isSampled = false,
                         dataSource = DataSource.DISK
@@ -77,7 +79,7 @@ class AudioArtworkFetcher(
             }
         }
 
-        return null
+        return@withContext null
     }
 
     class Factory(private val context: Context) : Fetcher.Factory<AudioArtwork> {

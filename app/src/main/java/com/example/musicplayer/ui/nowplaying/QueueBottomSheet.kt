@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Equalizer
+import com.example.musicplayer.ui.components.AnimatedEqualizer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -133,11 +133,13 @@ fun QueueBottomSheet(
                             }
 
                             if (isCurrent) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Equalizer,
-                                    contentDescription = null,
-                                    tint = AccentGold,
-                                    modifier = Modifier.size(20.dp).padding(end = 6.dp)
+                                AnimatedEqualizer(
+                                    isPlaying = true,
+                                    barColor = AccentGold,
+                                    barWidth = 3.dp,
+                                    barSpacing = 2.dp,
+                                    maxBarHeight = 16.dp,
+                                    modifier = Modifier.padding(end = 8.dp)
                                 )
                             }
 

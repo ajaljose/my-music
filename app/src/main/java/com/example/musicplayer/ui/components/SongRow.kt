@@ -63,14 +63,15 @@ fun SongRow(
                 Surface(
                     modifier = Modifier.size(52.dp),
                     shape = RoundedCornerShape(12.dp),
-                    color = Color.Black.copy(alpha = 0.5f)
+                    color = Color.Black.copy(alpha = 0.55f)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Rounded.Equalizer,
-                            contentDescription = "Playing",
-                            tint = AccentGold,
-                            modifier = Modifier.size(24.dp)
+                        AnimatedEqualizer(
+                            isPlaying = isPlaying,
+                            barColor = AccentGold,
+                            barWidth = 3.dp,
+                            barSpacing = 2.dp,
+                            maxBarHeight = 18.dp
                         )
                     }
                 }

@@ -25,7 +25,8 @@ import com.example.musicplayer.ui.theme.AccentGold
 @Composable
 fun BottomNavBar(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onItemClick: () -> Unit = {}
 ) {
     val items = listOf(
         Screen.Home,
@@ -81,6 +82,7 @@ fun BottomNavBar(
                             interactionSource = interactionSource,
                             indication = null
                         ) {
+                            onItemClick()
                             if (!selected) {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {

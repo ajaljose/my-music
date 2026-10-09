@@ -7,10 +7,12 @@ import com.example.musicplayer.data.local.entities.PlaybackHistoryEntity
 import com.example.musicplayer.data.local.entities.PlaylistEntity
 import com.example.musicplayer.data.local.entities.SongEntity
 import com.example.musicplayer.data.media.MediaStoreScanner
+import com.example.musicplayer.data.preferences.PlayerPreferences
 import com.example.musicplayer.domain.model.*
 import com.example.musicplayer.domain.repository.MusicRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -22,11 +24,20 @@ class MusicRepositoryImpl @Inject constructor(
     private val songDao: SongDao,
     private val playlistDao: PlaylistDao,
     private val playbackHistoryDao: PlaybackHistoryDao,
-    private val mediaStoreScanner: MediaStoreScanner
+    private val mediaStoreScanner: MediaStoreScanner,
+    private val playerPreferences: PlayerPreferences
 ) : MusicRepository {
 
+    private fun isPathExcluded(path: String, excludedSet: Set<String>): Boolean {
+        if (excludedSet.isEmpty() || path.isBlank()) return false
+        val parent = File(path).parent ?: ""
+        return excludedSet.contains(parent) || excludedSet.any { parent.startsWith(it) }
+    }
+
     override fun getAllSongsFlow(): Flow<List<Song>> =
-        songDao.getAllSongsFlow().map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getAllSongsFlow(), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override suspend fun getAllSongs(): List<Song> =
         songDao.getAllSongs().map { it.toDomain() }
@@ -35,28 +46,42 @@ class MusicRepositoryImpl @Inject constructor(
         songDao.getSongById(id)?.toDomain()
 
     override fun getFavoriteSongsFlow(): Flow<List<Song>> =
-        songDao.getFavoriteSongsFlow().map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getFavoriteSongsFlow(), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun getRecentlyPlayedSongsFlow(limit: Int): Flow<List<Song>> =
-        songDao.getRecentlyPlayedSongsFlow(limit).map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getRecentlyPlayedSongsFlow(limit), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun getRecentlyAddedSongsFlow(limit: Int): Flow<List<Song>> =
-        songDao.getRecentlyAddedSongsFlow(limit).map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getRecentlyAddedSongsFlow(limit), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun getMostPlayedSongsFlow(limit: Int): Flow<List<Song>> =
-        songDao.getMostPlayedSongsFlow(limit).map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getMostPlayedSongsFlow(limit), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun getSongsByAlbumFlow(albumId: Long): Flow<List<Song>> =
-        songDao.getSongsByAlbumFlow(albumId).map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getSongsByAlbumFlow(albumId), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun getSongsByArtistFlow(artistId: Long, artistName: String): Flow<List<Song>> =
-        songDao.getSongsByArtistFlow(artistId, artistName).map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.getSongsByArtistFlow(artistId, artistName), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun searchSongsFlow(query: String): Flow<List<Song>> =
-        songDao.searchSongsFlow(query).map { entities -> entities.map { it.toDomain() } }
+        combine(songDao.searchSongsFlow(query), playerPreferences.excludedFoldersFlow) { entities, excluded ->
+            entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+        }
 
     override fun getAllAlbumsFlow(): Flow<List<Album>> =
-        songDao.getAllSongsFlow().map { songs ->
+        getAllSongsFlow().map { songs ->
             songs.groupBy { it.albumId.takeIf { id -> id != 0L } ?: it.album.hashCode().toLong() }
                 .map { (_, songGroup) ->
                     val first = songGroup.first()
@@ -67,14 +92,16 @@ class MusicRepositoryImpl @Inject constructor(
                         artistId = first.artistId,
                         songCount = songGroup.size,
                         year = songGroup.map { it.year }.filter { it > 0 }.maxOrNull() ?: 0,
-                        albumArtUriString = songGroup.firstOrNull { it.albumArtUriString != null }?.albumArtUriString
+                        albumArtUriString = songGroup.firstOrNull { !it.albumArtUriString.isNullOrBlank() }?.albumArtUriString,
+                        firstSongContentUriString = first.contentUriString,
+                        firstSongPath = first.path
                     )
                 }
                 .sortedBy { it.name.lowercase() }
         }
 
     override fun getAllArtistsFlow(): Flow<List<Artist>> =
-        songDao.getAllSongsFlow().map { songs ->
+        getAllSongsFlow().map { songs ->
             songs.groupBy { it.artist.lowercase() }
                 .map { (_, songGroup) ->
                     val first = songGroup.first()
@@ -90,7 +117,7 @@ class MusicRepositoryImpl @Inject constructor(
         }
 
     override fun getFolderStructureFlow(): Flow<List<Folder>> =
-        songDao.getAllSongsFlow().map { entities ->
+        combine(songDao.getAllSongsFlow(), playerPreferences.excludedFoldersFlow) { entities, excluded ->
             val songs = entities.map { it.toDomain() }
             val folderMap = mutableMapOf<String, MutableList<Song>>()
 
@@ -103,11 +130,13 @@ class MusicRepositoryImpl @Inject constructor(
 
             folderMap.map { (folderPath, songList) ->
                 val folderName = File(folderPath).name.ifBlank { folderPath }
+                val isExcluded = excluded.contains(folderPath) || excluded.any { folderPath.startsWith(it) }
                 Folder(
                     path = folderPath,
                     name = folderName,
                     songCount = songList.size,
-                    songs = songList.sortedBy { it.title.lowercase() }
+                    songs = songList.sortedBy { it.title.lowercase() },
+                    isExcluded = isExcluded
                 )
             }.sortedBy { it.name.lowercase() }
         }
@@ -188,4 +217,10 @@ class MusicRepositoryImpl @Inject constructor(
         }
         scannedSongs.size
     }
+
+    override fun getExcludedFoldersFlow(): Flow<Set<String>> =
+        playerPreferences.excludedFoldersFlow
+
+    override suspend fun toggleExcludedFolder(folderPath: String) =
+        playerPreferences.toggleExcludedFolder(folderPath)
 }

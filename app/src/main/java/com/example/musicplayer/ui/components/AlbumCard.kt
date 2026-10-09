@@ -37,6 +37,8 @@ fun AlbumCard(
         ) {
             ArtworkImage(
                 artworkUri = album.albumArtUriString?.let { Uri.parse(it) },
+                songUri = album.firstSongContentUriString?.let { Uri.parse(it) },
+                path = album.firstSongPath,
                 size = 140.dp,
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier

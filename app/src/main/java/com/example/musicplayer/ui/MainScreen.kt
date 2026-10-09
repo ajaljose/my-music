@@ -39,15 +39,9 @@ fun MainScreen(
         else -> true // Default to signature dark theme matching screenshot
     }
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
 
-    val isTopLevelDestination = currentRoute in listOf(
-        Screen.Home.route,
-        Screen.Search.route,
-        Screen.Library.route,
-        Screen.Favourites.route
-    )
+
+
 
     HarmoniaTheme(
         darkTheme = darkTheme,
@@ -67,9 +61,14 @@ fun MainScreen(
                         )
                     }
 
-                    if (isTopLevelDestination) {
-                        BottomNavBar(navController = navController)
-                    }
+                    BottomNavBar(
+                        navController = navController,
+                        onItemClick = {
+                            if (isNowPlayingExpanded) {
+                                isNowPlayingExpanded = false
+                            }
+                        }
+                    )
                 }
             }
         ) { paddingValues ->
