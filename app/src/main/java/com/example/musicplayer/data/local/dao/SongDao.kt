@@ -58,6 +58,9 @@ interface SongDao {
     @Update
     suspend fun updateSong(song: SongEntity)
 
+    @Update
+    suspend fun updateSongs(songs: List<SongEntity>)
+
     @Query("UPDATE songs SET isFavorite = :isFavorite WHERE id = :songId")
     suspend fun updateFavoriteStatus(songId: Long, isFavorite: Boolean)
 

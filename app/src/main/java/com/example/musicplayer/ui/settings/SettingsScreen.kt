@@ -36,6 +36,9 @@ fun SettingsScreen(
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showSleepTimerDialog by remember { mutableStateOf(false) }
+    var versionClickCount by remember { mutableIntStateOf(0) }
+    var lastVersionClickTime by remember { mutableLongStateOf(0L) }
+    var showPiracyQuoteDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -122,14 +125,28 @@ fun SettingsScreen(
                 SettingsInfoItem(
                     icon = Icons.Rounded.Info,
                     title = "App Version",
-                    value = "1.0.0"
+                    value = "1.0.0",
+                    onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastVersionClickTime < 2000L) {
+                            versionClickCount++
+                        } else {
+                            versionClickCount = 1
+                        }
+                        lastVersionClickTime = currentTime
+
+                        if (versionClickCount >= 7) {
+                            showPiracyQuoteDialog = true
+                            versionClickCount = 0
+                        }
+                    }
                 )
             }
 
             item {
                 SettingsInfoItem(
                     icon = Icons.Rounded.MusicNote,
-                    title = "Harmonia Music Player",
+                    title = "My Music Player",
                     value = "Designed for seamless offline audio"
                 )
             }
@@ -158,6 +175,34 @@ fun SettingsScreen(
             onSetTimerEndOfSong = { viewModel.startSleepTimerEndOfSong() },
             onCancelTimer = { viewModel.cancelSleepTimer() },
             onDismiss = { showSleepTimerDialog = false }
+        )
+    }
+
+    if (showPiracyQuoteDialog) {
+        AlertDialog(
+            onDismissRequest = { showPiracyQuoteDialog = false },
+            title = {
+                Text(
+                    text = "Developer Quote",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            text = {
+                Text(
+                    text = "if buying isn’t owning, pirating isn’t stealing",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AccentGold
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            confirmButton = {
+                TextButton(onClick = { showPiracyQuoteDialog = false }) {
+                    Text("OK", color = AccentGold, fontWeight = FontWeight.Bold)
+                }
+            }
         )
     }
 }
@@ -240,13 +285,15 @@ private fun SettingsClickableItem(
 private fun SettingsInfoItem(
     icon: ImageVector,
     title: String,
-    value: String
+    value: String,
+    onClick: (() -> Unit)? = null
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     ) {

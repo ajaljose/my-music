@@ -82,10 +82,18 @@ fun MainScreen(
                 enter = slideInVertically(initialOffsetY = { it }),
                 exit = slideOutVertically(targetOffsetY = { it })
             ) {
+                val playlists by viewModel.playlists.collectAsState()
                 NowPlayingScreen(
                     playbackManager = viewModel.playbackManager,
+                    playlists = playlists,
                     onClose = { isNowPlayingExpanded = false },
-                    onToggleFavorite = { viewModel.toggleFavoriteCurrentSong() }
+                    onToggleFavorite = { viewModel.toggleFavoriteCurrentSong() },
+                    onAddSongToPlaylist = { playlistId, songId ->
+                        viewModel.addSongToPlaylist(playlistId, songId)
+                    },
+                    onCreatePlaylist = { name, songId ->
+                        viewModel.createPlaylist(name, songId)
+                    }
                 )
             }
         }

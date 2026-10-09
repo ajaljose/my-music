@@ -30,10 +30,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.RepeatMode
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.playback.manager.MusicPlaybackManager
+import com.example.musicplayer.ui.components.AddToPlaylistDialog
 import com.example.musicplayer.ui.components.ArtworkImage
+import com.example.musicplayer.ui.components.CreatePlaylistDialog
 import com.example.musicplayer.ui.components.SleepTimerDialog
 import com.example.musicplayer.ui.components.SongOptionsBottomSheet
 import com.example.musicplayer.ui.components.WavyProgressBar
@@ -45,8 +48,11 @@ import com.example.musicplayer.ui.theme.BackgroundDark
 @Composable
 fun NowPlayingScreen(
     playbackManager: MusicPlaybackManager,
+    playlists: List<Playlist>,
     onClose: () -> Unit,
     onToggleFavorite: () -> Unit,
+    onAddSongToPlaylist: (playlistId: Long, songId: Long) -> Unit,
+    onCreatePlaylist: (name: String, songId: Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -57,6 +63,8 @@ fun NowPlayingScreen(
     var showQueueSheet by remember { mutableStateOf(false) }
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showOptionsSheet by remember { mutableStateOf(false) }
+    var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+    var showCreatePlaylistDialog by remember { mutableStateOf(false) }
 
     var prominentColorTarget by remember { mutableStateOf(Color(0xFF008B9E)) }
     val animatedProminentColor by animateColorAsState(
@@ -441,9 +449,37 @@ fun NowPlayingScreen(
             song = currentSong,
             onPlayNext = { playbackManager.playNext(currentSong) },
             onAddToQueue = { playbackManager.addToQueue(currentSong) },
-            onAddToPlaylist = {},
+            onAddToPlaylist = {
+                showOptionsSheet = false
+                showAddToPlaylistDialog = true
+            },
             onToggleFavorite = onToggleFavorite,
             onDismiss = { showOptionsSheet = false }
+        )
+    }
+
+    if (showAddToPlaylistDialog && currentSong != null) {
+        AddToPlaylistDialog(
+            playlists = playlists,
+            onPlaylistSelected = { playlist ->
+                onAddSongToPlaylist(playlist.id, currentSong.id)
+                showAddToPlaylistDialog = false
+            },
+            onCreateNewPlaylistClick = {
+                showAddToPlaylistDialog = false
+                showCreatePlaylistDialog = true
+            },
+            onDismiss = { showAddToPlaylistDialog = false }
+        )
+    }
+
+    if (showCreatePlaylistDialog && currentSong != null) {
+        CreatePlaylistDialog(
+            onConfirm = { name ->
+                onCreatePlaylist(name, currentSong.id)
+                showCreatePlaylistDialog = false
+            },
+            onDismiss = { showCreatePlaylistDialog = false }
         )
     }
 }

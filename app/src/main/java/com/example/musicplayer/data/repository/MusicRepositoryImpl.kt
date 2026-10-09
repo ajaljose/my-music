@@ -194,22 +194,31 @@ class MusicRepositoryImpl @Inject constructor(
         if (scannedSongs.isNotEmpty()) {
             val existingSongs = songDao.getAllSongs().associateBy { it.mediaStoreId }
 
-            // Preserve user metadata like isFavorite, playCount, lastPlayedTimestamp
-            val songsToSave = scannedSongs.map { scanned ->
+            val songsToUpdate = mutableListOf<SongEntity>()
+            val songsToInsert = mutableListOf<SongEntity>()
+
+            scannedSongs.forEach { scanned ->
                 val existing = existingSongs[scanned.mediaStoreId]
                 if (existing != null) {
-                    scanned.copy(
-                        id = existing.id,
-                        isFavorite = existing.isFavorite,
-                        playCount = existing.playCount,
-                        lastPlayedTimestamp = existing.lastPlayedTimestamp
+                    songsToUpdate.add(
+                        scanned.copy(
+                            id = existing.id,
+                            isFavorite = existing.isFavorite,
+                            playCount = existing.playCount,
+                            lastPlayedTimestamp = existing.lastPlayedTimestamp
+                        )
                     )
                 } else {
-                    scanned
+                    songsToInsert.add(scanned)
                 }
             }
 
-            songDao.insertSongs(songsToSave)
+            if (songsToUpdate.isNotEmpty()) {
+                songDao.updateSongs(songsToUpdate)
+            }
+            if (songsToInsert.isNotEmpty()) {
+                songDao.insertSongs(songsToInsert)
+            }
 
             // Remove songs deleted from device
             val activeIds = scannedSongs.map { it.mediaStoreId }
