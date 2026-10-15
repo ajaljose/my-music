@@ -14,6 +14,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.example.musicplayer.data.media.AlbumArtContentProvider
 import com.example.musicplayer.data.preferences.PlayerPreferences
 import com.example.musicplayer.domain.model.PlaybackState
 import com.example.musicplayer.domain.model.RepeatMode
@@ -105,6 +106,14 @@ class MusicPlaybackManager @Inject constructor(
                 val currentSong = _playbackState.value.currentSong
                 if (currentSong != null) {
                     serviceScope.launch {
+                        val fullSong = musicRepository.getSongById(currentSong.id)
+                        if (fullSong != null) {
+                            _playbackState.update { state ->
+                                if (state.currentSong?.id == fullSong.id) {
+                                    state.copy(currentSong = fullSong)
+                                } else state
+                            }
+                        }
                         musicRepository.recordSongPlayed(currentSong.id)
                         preferences.setLastPlayedSong(currentSong.id, 0L)
                     }
@@ -191,6 +200,14 @@ class MusicPlaybackManager @Inject constructor(
             else -> RepeatMode.OFF
         }
 
+        val effectiveQueue = if (currentPlaylistSongs.isNotEmpty()) {
+            currentPlaylistSongs
+        } else {
+            (0 until controller.mediaItemCount).map { index ->
+                songFromMediaItem(controller.getMediaItemAt(index))
+            }
+        }
+
         _playbackState.update {
             it.copy(
                 currentSong = currentSong,
@@ -200,7 +217,7 @@ class MusicPlaybackManager @Inject constructor(
                 bufferedPosition = controller.bufferedPosition.coerceAtLeast(0L),
                 isShuffleEnabled = controller.shuffleModeEnabled,
                 repeatMode = repeatMode,
-                queue = currentPlaylistSongs,
+                queue = effectiveQueue,
                 currentQueueIndex = currentIndex
             )
         }
@@ -247,33 +264,12 @@ class MusicPlaybackManager @Inject constructor(
     }
 
     private suspend fun loadArtworkBytes(song: Song): ByteArray? = withContext(Dispatchers.IO) {
-        if (!song.albumArtUriString.isNullOrBlank()) {
-            try {
-                val uri = Uri.parse(song.albumArtUriString)
-                context.contentResolver.openInputStream(uri)?.use { stream ->
-                    val bytes = stream.readBytes()
-                    if (bytes.isNotEmpty()) return@withContext bytes
-                }
-            } catch (_: Exception) {}
-        }
-
-        try {
-            val retriever = MediaMetadataRetriever()
-            if (song.contentUriString.isNotBlank()) {
-                retriever.setDataSource(context, song.contentUri)
-            } else if (song.path.isNotBlank()) {
-                retriever.setDataSource(song.path)
-            } else {
-                return@withContext null
-            }
-            val picture = retriever.embeddedPicture
-            retriever.release()
-            if (picture != null && picture.isNotEmpty()) {
-                return@withContext picture
-            }
-        } catch (_: Exception) {}
-
-        return@withContext null
+        AlbumArtContentProvider.loadArtworkBytes(
+            context,
+            song.albumArtUriString,
+            song.contentUriString,
+            song.path
+        )
     }
 
     fun playSongs(songs: List<Song>, startIndex: Int = 0) {
@@ -505,22 +501,35 @@ class MusicPlaybackManager @Inject constructor(
 }
 
 fun Song.toMediaItem(): MediaItem {
-    val artworkUri = albumArtUriString?.let { Uri.parse(it) }
+    val artworkUri = AlbumArtContentProvider.getSongArtUri(id)
+    val songExtras = Bundle().apply {
+        putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 1)
+    }
     val metadata = MediaMetadata.Builder()
         .setTitle(title)
         .setArtist(artist)
         .setAlbumTitle(album)
         .setArtworkUri(artworkUri)
+        .setIsPlayable(true)
+        .setIsBrowsable(false)
+        .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
+        .setExtras(songExtras)
         .build()
 
-    return MediaItem.Builder()
+    val parsedUri = runCatching { contentUri }.getOrNull()
+
+    val builder = MediaItem.Builder()
         .setMediaId(id.toString())
-        .setUri(contentUri)
-        .setRequestMetadata(
+        .setMediaMetadata(metadata)
+
+    if (parsedUri != null) {
+        builder.setUri(parsedUri)
+        builder.setRequestMetadata(
             MediaItem.RequestMetadata.Builder()
-                .setMediaUri(contentUri)
+                .setMediaUri(parsedUri)
                 .build()
         )
-        .setMediaMetadata(metadata)
-        .build()
+    }
+
+    return builder.build()
 }
