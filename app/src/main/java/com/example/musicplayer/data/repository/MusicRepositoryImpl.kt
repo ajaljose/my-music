@@ -13,6 +13,7 @@ import com.example.musicplayer.domain.repository.MusicRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -39,8 +40,10 @@ class MusicRepositoryImpl @Inject constructor(
             entities.map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
         }
 
-    override suspend fun getAllSongs(): List<Song> =
-        songDao.getAllSongs().map { it.toDomain() }
+    override suspend fun getAllSongs(): List<Song> {
+        val excluded = playerPreferences.excludedFoldersFlow.first()
+        return songDao.getAllSongs().map { it.toDomain() }.filterNot { isPathExcluded(it.path, excluded) }
+    }
 
     override suspend fun getSongById(id: Long): Song? =
         songDao.getSongById(id)?.toDomain()

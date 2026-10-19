@@ -56,6 +56,24 @@
             </intent-filter>
         </service>
 
+        <!-- Content Provider for safe cross-process Album Art serving to Android Auto -->
+        <provider
+            android:name=".data.media.AlbumArtContentProvider"
+            android:authorities="com.example.musicplayer.albumart"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
+        <!-- Android Auto & Automotive OS Application Metadata -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="com.android.automotive"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="com.google.android.gms.car.notification.SmallIcon"
+            android:resource="@drawable/ic_launcher_foreground" />
+
     </application>
 
 </manifest>
