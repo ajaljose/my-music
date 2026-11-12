@@ -18,19 +18,23 @@ data class SettingsUiState(
     val pauseOnHeadphoneDisconnect: Boolean = true,
     val totalSongs: Int = 0,
     val isRescanning: Boolean = false,
-    val sleepTimerState: SleepTimerState = SleepTimerState()
+    val sleepTimerState: SleepTimerState = SleepTimerState(),
+    val hideWebsiteNamesEnabled: Boolean = true,
+    val customHiddenSites: List<String> = emptyList()
 )
 
 private data class SettingsPrefData(
     val themeMode: String,
     val dynamicColor: Boolean,
-    val pauseOnHeadphoneDisconnect: Boolean
+    val pauseOnHeadphoneDisconnect: Boolean,
+    val hideWebsiteNamesEnabled: Boolean
 )
 
 private data class SettingsStateData(
     val songs: List<Song>,
     val isRescanning: Boolean,
-    val sleepTimerState: SleepTimerState
+    val sleepTimerState: SleepTimerState,
+    val customHiddenSites: List<String>
 )
 
 @HiltViewModel
@@ -46,16 +50,23 @@ class SettingsViewModel @Inject constructor(
         combine(
             preferences.themeModeFlow,
             preferences.dynamicColorFlow,
-            preferences.pauseOnHeadphoneDisconnectFlow
-        ) { theme, dynamic, pauseNoisy ->
-            SettingsPrefData(theme, dynamic, pauseNoisy)
+            preferences.pauseOnHeadphoneDisconnectFlow,
+            preferences.hideWebsiteNamesEnabledFlow
+        ) { theme, dynamic, pauseNoisy, hideWebsites ->
+            SettingsPrefData(theme, dynamic, pauseNoisy, hideWebsites)
         },
         combine(
             musicRepository.getAllSongsFlow(),
             _isRescanning,
-            playbackManager.sleepTimerState
-        ) { songs, rescanning, timerState ->
-            SettingsStateData(songs, rescanning, timerState)
+            playbackManager.sleepTimerState,
+            preferences.customHiddenSitesFlow
+        ) { songs, rescanning, timerState, customHidden ->
+            SettingsStateData(
+                songs = songs,
+                isRescanning = rescanning,
+                sleepTimerState = timerState,
+                customHiddenSites = customHidden.toList().sorted()
+            )
         }
     ) { prefs, state ->
         SettingsUiState(
@@ -64,7 +75,9 @@ class SettingsViewModel @Inject constructor(
             pauseOnHeadphoneDisconnect = prefs.pauseOnHeadphoneDisconnect,
             totalSongs = state.songs.size,
             isRescanning = state.isRescanning,
-            sleepTimerState = state.sleepTimerState
+            sleepTimerState = state.sleepTimerState,
+            hideWebsiteNamesEnabled = prefs.hideWebsiteNamesEnabled,
+            customHiddenSites = state.customHiddenSites
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState())
 
@@ -104,5 +117,23 @@ class SettingsViewModel @Inject constructor(
 
     fun cancelSleepTimer() {
         playbackManager.cancelSleepTimer()
+    }
+
+    fun setHideWebsiteNamesEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            preferences.setHideWebsiteNamesEnabled(enabled)
+        }
+    }
+
+    fun addCustomHiddenSite(siteName: String) {
+        viewModelScope.launch {
+            preferences.addCustomHiddenSite(siteName)
+        }
+    }
+
+    fun removeCustomHiddenSite(siteName: String) {
+        viewModelScope.launch {
+            preferences.removeCustomHiddenSite(siteName)
+        }
     }
 }

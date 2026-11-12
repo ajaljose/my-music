@@ -1,6 +1,5 @@
 package com.example.musicplayer.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +13,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,19 +24,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.PlaybackState
+import com.example.musicplayer.domain.util.MetadataCleaner
 import com.example.musicplayer.ui.theme.AccentGold
 import com.example.musicplayer.ui.theme.AccentPink
 
 @Composable
 fun MiniPlayer(
     playbackState: PlaybackState,
+    modifier: Modifier = Modifier,
+    activeHiddenSites: Set<String> = emptySet(),
     onClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onSkipNextClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onFavoriteClick: () -> Unit
 ) {
-    val song = playbackState.currentSong ?: return
+    val rawSong = playbackState.currentSong ?: return
+    val song = remember(rawSong, activeHiddenSites) {
+        MetadataCleaner.cleanSong(rawSong, activeHiddenSites)
+    }
 
     val progress = if (playbackState.totalDuration > 0) {
         (playbackState.currentPosition.toFloat() / playbackState.totalDuration.toFloat()).coerceIn(0f, 1f)

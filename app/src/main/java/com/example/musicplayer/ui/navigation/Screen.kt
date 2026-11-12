@@ -18,6 +18,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Playlists : Screen("playlists", "Playlists", Icons.Rounded.QueueMusic)
     object Folders : Screen("folders", "Folders", Icons.Rounded.Folder)
     object Settings : Screen("settings", "Settings", Icons.Rounded.Settings)
+    object MetadataCleaner : Screen("metadata_cleaner", "Hide Website Names", Icons.Rounded.CleaningServices)
 
     object AlbumDetail : Screen("album_detail/{albumId}", "Album Detail") {
         fun createRoute(albumId: Long) = "album_detail/$albumId"

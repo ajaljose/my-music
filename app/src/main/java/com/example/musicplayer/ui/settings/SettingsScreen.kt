@@ -30,6 +30,7 @@ import com.example.musicplayer.ui.theme.BackgroundDark
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
+    onNavigateToMetadataCleaner: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -104,6 +105,22 @@ fun SettingsScreen(
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 SettingsCategoryHeader(title = "Library")
+            }
+
+            item {
+                val activeCount = uiState.customHiddenSites.size
+                val cleanerSubtitle = if (uiState.hideWebsiteNamesEnabled) {
+                    "Clean site names in Now Playing & Mini Player ($activeCount rules active)"
+                } else {
+                    "Disabled"
+                }
+
+                SettingsClickableItem(
+                    icon = Icons.Rounded.CleaningServices,
+                    title = "Hide Website Names",
+                    subtitle = cleanerSubtitle,
+                    onClick = onNavigateToMetadataCleaner
+                )
             }
 
             item {
