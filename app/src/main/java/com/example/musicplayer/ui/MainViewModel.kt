@@ -31,6 +31,13 @@ class MainViewModel @Inject constructor(
     val dynamicColor: StateFlow<Boolean> = preferences.dynamicColorFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
+    val activeHiddenSites: StateFlow<Set<String>> = combine(
+        preferences.hideWebsiteNamesEnabledFlow,
+        preferences.customHiddenSitesFlow
+    ) { enabled, custom ->
+        if (enabled) custom.map { it.lowercase() }.toSet() else emptySet()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     fun playPause() {
         playbackManager.playPause()
     }

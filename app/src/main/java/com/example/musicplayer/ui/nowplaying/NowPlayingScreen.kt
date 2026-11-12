@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.RepeatMode
 import com.example.musicplayer.domain.model.Song
+import com.example.musicplayer.domain.util.MetadataCleaner
 import com.example.musicplayer.playback.manager.MusicPlaybackManager
 import com.example.musicplayer.ui.components.AddToPlaylistDialog
 import com.example.musicplayer.ui.components.ArtworkImage
@@ -49,16 +50,20 @@ import com.example.musicplayer.ui.theme.BackgroundDark
 fun NowPlayingScreen(
     playbackManager: MusicPlaybackManager,
     playlists: List<Playlist>,
+    modifier: Modifier = Modifier,
+    activeHiddenSites: Set<String> = emptySet(),
     onClose: () -> Unit,
     onToggleFavorite: () -> Unit,
     onAddSongToPlaylist: (playlistId: Long, songId: Long) -> Unit,
-    onCreatePlaylist: (name: String, songId: Long?) -> Unit,
-    modifier: Modifier = Modifier
+    onCreatePlaylist: (name: String, songId: Long?) -> Unit
 ) {
     val context = LocalContext.current
     val playbackState by playbackManager.playbackState.collectAsState()
     val sleepTimerState by playbackManager.sleepTimerState.collectAsState()
-    val currentSong = playbackState.currentSong
+    val rawCurrentSong = playbackState.currentSong
+    val currentSong = remember(rawCurrentSong, activeHiddenSites) {
+        rawCurrentSong?.let { MetadataCleaner.cleanSong(it, activeHiddenSites) }
+    }
 
     var showQueueSheet by remember { mutableStateOf(false) }
     var showSleepTimerDialog by remember { mutableStateOf(false) }
@@ -412,8 +417,11 @@ fun NowPlayingScreen(
     }
 
     if (showQueueSheet) {
+        val cleanedQueue = remember(playbackState.queue, activeHiddenSites) {
+            playbackState.queue.map { MetadataCleaner.cleanSong(it, activeHiddenSites) }
+        }
         QueueBottomSheet(
-            queue = playbackState.queue,
+            queue = cleanedQueue,
             currentIndex = playbackState.currentQueueIndex,
             onSongClick = { index ->
                 playbackManager.skipToQueueItem(index)

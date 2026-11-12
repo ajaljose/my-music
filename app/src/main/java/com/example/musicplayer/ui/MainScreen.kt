@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -45,57 +44,62 @@ fun MainScreen(
         darkTheme = isDark,
         dynamicColor = dynamicColor
     ) {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
-            bottomBar = {
-                Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-                    if (playbackState.currentSong != null && !isNowPlayingExpanded) {
-                        MiniPlayer(
-                            playbackState = playbackState,
-                            onClick = { isNowPlayingExpanded = true },
-                            onPlayPauseClick = { viewModel.playPause() },
-                            onSkipNextClick = { viewModel.skipToNext() },
-                            onFavoriteClick = { viewModel.toggleFavoriteCurrentSong() }
-                        )
-                    }
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = {
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+                val activeHiddenSites by viewModel.activeHiddenSites.collectAsState()
 
-                    BottomNavBar(
-                        navController = navController,
-                        onItemClick = {
-                            if (isNowPlayingExpanded) {
-                                isNowPlayingExpanded = false
-                            }
-                        }
+                if (playbackState.currentSong != null && !isNowPlayingExpanded) {
+                    MiniPlayer(
+                        playbackState = playbackState,
+                        activeHiddenSites = activeHiddenSites,
+                        onClick = { isNowPlayingExpanded = true },
+                        onPlayPauseClick = { viewModel.playPause() },
+                        onSkipNextClick = { viewModel.skipToNext() },
+                        onFavoriteClick = { viewModel.toggleFavoriteCurrentSong() }
                     )
                 }
-            }
-        ) { paddingValues ->
-            NavGraph(
-                navController = navController,
-                playbackState = playbackState,
-                onGrantPermissionClick = onGrantPermissionClick,
-                modifier = Modifier.padding(paddingValues)
-            )
 
-            AnimatedVisibility(
-                visible = isNowPlayingExpanded,
-                enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically(targetOffsetY = { it })
-            ) {
-                val playlists by viewModel.playlists.collectAsState()
-                NowPlayingScreen(
-                    playbackManager = viewModel.playbackManager,
-                    playlists = playlists,
-                    onClose = { isNowPlayingExpanded = false },
-                    onToggleFavorite = { viewModel.toggleFavoriteCurrentSong() },
-                    onAddSongToPlaylist = { playlistId, songId ->
-                        viewModel.addSongToPlaylist(playlistId, songId)
-                    },
-                    onCreatePlaylist = { name, songId ->
-                        viewModel.createPlaylist(name, songId)
+                BottomNavBar(
+                    navController = navController,
+                    onItemClick = {
+                        if (isNowPlayingExpanded) {
+                            isNowPlayingExpanded = false
+                        }
                     }
                 )
             }
         }
+    ) { paddingValues ->
+        NavGraph(
+            navController = navController,
+            playbackState = playbackState,
+            onGrantPermissionClick = onGrantPermissionClick,
+            modifier = Modifier.padding(paddingValues)
+        )
+
+        AnimatedVisibility(
+            visible = isNowPlayingExpanded,
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it })
+        ) {
+            val playlists by viewModel.playlists.collectAsState()
+            val activeHiddenSites by viewModel.activeHiddenSites.collectAsState()
+            NowPlayingScreen(
+                playbackManager = viewModel.playbackManager,
+                playlists = playlists,
+                activeHiddenSites = activeHiddenSites,
+                onClose = { isNowPlayingExpanded = false },
+                onToggleFavorite = { viewModel.toggleFavoriteCurrentSong() },
+                onAddSongToPlaylist = { playlistId, songId ->
+                    viewModel.addSongToPlaylist(playlistId, songId)
+                },
+                onCreatePlaylist = { name, songId ->
+                    viewModel.createPlaylist(name, songId)
+                }
+            )
+        }
+    }
     }
 }

@@ -26,6 +26,7 @@ import com.example.musicplayer.ui.playlists.PlaylistsScreen
 import com.example.musicplayer.ui.playlists.PlaylistsViewModel
 import com.example.musicplayer.ui.search.SearchScreen
 import com.example.musicplayer.ui.search.SearchViewModel
+import com.example.musicplayer.ui.settings.MetadataCleanerScreen
 import com.example.musicplayer.ui.settings.SettingsScreen
 import com.example.musicplayer.ui.settings.SettingsViewModel
 import com.example.musicplayer.ui.songs.SongsScreen
@@ -203,6 +204,15 @@ fun NavGraph(
         composable(Screen.Settings.route) {
             val viewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() },
+                onNavigateToMetadataCleaner = { navController.navigate(Screen.MetadataCleaner.route) }
+            )
+        }
+
+        composable(Screen.MetadataCleaner.route) {
+            val viewModel: SettingsViewModel = hiltViewModel()
+            MetadataCleanerScreen(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() }
             )

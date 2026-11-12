@@ -29,6 +29,8 @@ class PlayerPreferences @Inject constructor(
         val PAUSE_ON_HEADPHONE_DISCONNECT = booleanPreferencesKey("pause_on_headphone_disconnect")
         val GAPLESS_PLAYBACK = booleanPreferencesKey("gapless_playback")
         val EXCLUDED_FOLDERS = stringSetPreferencesKey("excluded_folders")
+        val HIDE_WEBSITE_NAMES_ENABLED = booleanPreferencesKey("hide_website_names_enabled")
+        val CUSTOM_HIDDEN_SITES = stringSetPreferencesKey("custom_hidden_sites")
     }
 
     val themeModeFlow: Flow<String> = context.dataStore.data.map { preferences ->
@@ -70,6 +72,14 @@ class PlayerPreferences @Inject constructor(
 
     val pauseOnHeadphoneDisconnectFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[Keys.PAUSE_ON_HEADPHONE_DISCONNECT] ?: true
+    }
+
+    val hideWebsiteNamesEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[Keys.HIDE_WEBSITE_NAMES_ENABLED] ?: true
+    }
+
+    val customHiddenSitesFlow: Flow<Set<String>> = context.dataStore.data.map { preferences ->
+        preferences[Keys.CUSTOM_HIDDEN_SITES] ?: emptySet()
     }
 
     suspend fun setThemeMode(mode: String) {
@@ -123,6 +133,29 @@ class PlayerPreferences @Inject constructor(
             } else {
                 preferences[Keys.EXCLUDED_FOLDERS] = current + folderPath
             }
+        }
+    }
+
+    suspend fun setHideWebsiteNamesEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.HIDE_WEBSITE_NAMES_ENABLED] = enabled
+        }
+    }
+
+    suspend fun addCustomHiddenSite(siteName: String) {
+        val lowerSite = siteName.trim().lowercase()
+        if (lowerSite.isBlank()) return
+        context.dataStore.edit { preferences ->
+            val current = preferences[Keys.CUSTOM_HIDDEN_SITES] ?: emptySet()
+            preferences[Keys.CUSTOM_HIDDEN_SITES] = current + lowerSite
+        }
+    }
+
+    suspend fun removeCustomHiddenSite(siteName: String) {
+        val lowerSite = siteName.trim().lowercase()
+        context.dataStore.edit { preferences ->
+            val current = preferences[Keys.CUSTOM_HIDDEN_SITES] ?: emptySet()
+            preferences[Keys.CUSTOM_HIDDEN_SITES] = current - lowerSite
         }
     }
 }
