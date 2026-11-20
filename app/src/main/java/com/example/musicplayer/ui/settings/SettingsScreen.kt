@@ -142,7 +142,7 @@ fun SettingsScreen(
                 SettingsInfoItem(
                     icon = Icons.Rounded.Info,
                     title = "App Version",
-                    value = "1.0.0",
+                    value = "1.1.1",
                     onClick = {
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastVersionClickTime < 2000L) {
@@ -195,33 +195,62 @@ fun SettingsScreen(
         )
     }
 
-    if (showPiracyQuoteDialog) {
-        AlertDialog(
-            onDismissRequest = { showPiracyQuoteDialog = false },
-            title = {
+    
+if (showPiracyQuoteDialog) {
+    AlertDialog(
+        onDismissRequest = {
+            showPiracyQuoteDialog = false
+        },
+        title = {
+            Text(
+                text = "Developer Quote",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 Text(
-                    text = "Developer Quote",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            text = {
-                Text(
-                    text = "if buying isn’t owning, pirating isn’t stealing",
+                    text = "If buying isn’t owning, pirating isn’t stealing.",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = AccentGold
                 )
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            confirmButton = {
-                TextButton(onClick = { showPiracyQuoteDialog = false }) {
-                    Text("OK", color = AccentGold, fontWeight = FontWeight.Bold)
-                }
+                Text(
+                    text = "______________________________________",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AccentGold
+                )
+
+                Text(
+                    text = "Piracy is the result of bad service. - Gabe Newell",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AccentGold
+                )
             }
-        )
-    }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    showPiracyQuoteDialog = false
+                }
+            ) {
+                Text(
+                    text = "OK",
+                    color = AccentGold,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    )
+}
+
 }
 
 @Composable
